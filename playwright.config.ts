@@ -14,6 +14,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   timeout: 60000,
+  globalSetup: './global-setup.ts',
+  globalTeardown: './global-teardown.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -58,14 +60,14 @@ export default defineConfig({
     },
 
     /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
+     {
+       name: 'Mobile Chrome',
+       use: { ...devices['Pixel 5'] },
+     },
+     {
+       name: 'Mobile Safari',
+       use: { ...devices['iPhone 12'] },
+     },
 
     /* Test against branded browsers. */
     // {

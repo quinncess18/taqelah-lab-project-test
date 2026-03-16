@@ -1,0 +1,57 @@
+{
+  "cookies": [
+    {
+      "name": "_ga",
+      "value": "GA1.1.1176752180.1773641718",
+      "domain": ".taqelah.sg",
+      "path": "/",
+      "expires": 1808201717.947053,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_fbp",
+      "value": "fb.1.1773641718216.754072855103259615",
+      "domain": ".taqelah.sg",
+      "path": "/",
+      "expires": 1781417718,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga_WFB1TGMGH2",
+      "value": "GS2.1.s1773641717$o1$g0$t1773641718$j59$l0$h0",
+      "domain": ".taqelah.sg",
+      "path": "/",
+      "expires": 1808201718.286362,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://taqelah.sg",
+      "localStorage": [
+        {
+          "name": "lastExternalReferrer",
+          "value": "empty"
+        },
+        {
+          "name": "lastExternalReferrerTime",
+          "value": "1773641718207"
+        },
+        {
+          "name": "taqelahCart",
+          "value": "[]"
+        },
+        {
+          "name": "taqelahUser",
+          "value": "ladies"
+        }
+      ]
+    }
+  ]
+}
