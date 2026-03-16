@@ -17,6 +17,7 @@ test.describe('Taqelah login', () => {
       await page.getByTestId('username-input').fill(username);
       await page.getByTestId('password-input').fill(password);
       await page.getByTestId('login-button').click();
+      await expect(page.getByText('Spring Collection 2025')).toBeVisible();
       await expect(page.getByTestId('logout-button')).toBeVisible();
       await page.getByTestId('logout-button').click();
       await expect(page.locator('#loginPage')).toBeVisible();
