@@ -34,6 +34,7 @@ test.describe('Desktop Shopping Experience', () => {
     // Take full-page screenshot for visual verification of desktop layout
     await page.screenshot({ path: 'desktop-checkout-view.png', fullPage: true });
   });
+
 });
 
 // Mobile tests - skip on desktop
