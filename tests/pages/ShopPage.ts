@@ -4,6 +4,7 @@ export class ShopPage {
   readonly page: Page;
   readonly searchInput: Locator;
   readonly searchGrid: Locator;
+  readonly confirmationMessage: Locator;
   readonly cartIcon: Locator;
   readonly productDetailsAddToCart: Locator;
 
@@ -11,6 +12,7 @@ export class ShopPage {
     this.page = page;
     this.searchInput = page.getByTestId('search-input');
     this.searchGrid = page.getByTestId('search-grid');
+    this.confirmationMessage = page.getByTestId('toast-message');
     this.cartIcon = page.getByTestId('cart-icon');
     this.productDetailsAddToCart = page.getByTestId('product-details-add-to-cart');
   }
@@ -26,6 +28,11 @@ export class ShopPage {
 
   async addToCart() {
     await this.productDetailsAddToCart.click();
+  }
+
+  async getConfirmationMessage(): Promise<string> {
+    await expect(this.confirmationMessage).toBeVisible();
+    return this.confirmationMessage.innerText();
   }
 
   async openCart() {

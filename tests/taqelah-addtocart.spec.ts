@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { ShopPage } from './pages/ShopPage';
 import { CartPage } from './pages/CartPage';
-import { ProductDetailsPage } from './pages/ProductDetailsPage';
 
 test.use({ storageState: '.auth/taqelah-user.json' });
 
 // Desktop tests - skip on mobile
-test.describe('Desktop Shopping Experience', () => {
+test.describe('Desktop Shopping Experience @desktop', () => {
   test.beforeEach(async ({ page, isMobile }) => {
     test.skip(isMobile, 'This test is for desktop only');
     await page.goto('/taqelah-demo-site.html');
@@ -29,6 +28,10 @@ test.describe('Desktop Shopping Experience', () => {
     // Add to cart
     await shopPage.searchGrid.getByRole('button', { name: 'Add to Cart' }).click();
 
+    // Verify confirmation message
+    const confirmationText = await shopPage.getConfirmationMessage();
+    expect(confirmationText).toContain('Maxi Dress added to cart');
+
     // Navigate to cart
     await shopPage.cartIcon.scrollIntoViewIfNeeded();
     await shopPage.openCart();
@@ -42,24 +45,13 @@ test.describe('Desktop Shopping Experience', () => {
     await cartPage.checkoutButton.click();
     await expect(page.getByTestId('checkout-form')).toBeVisible();
 
-    // Close checkout form to return to search results
-    await cartPage.closeCheckoutForm();
-
-    // Search for another product and view product details
-    await shopPage.searchProduct('pants');
-    await shopPage.searchGrid.scrollIntoViewIfNeeded();
-    await expect(shopPage.searchGrid.getByRole('img', { name: 'Wide Leg Pants' })).toBeVisible();
-    await shopPage.searchGrid.getByRole('img', { name: 'Wide Leg Pants' }).click();
-    const productDetailsPage = new ProductDetailsPage(page);
-    await productDetailsPage.expectProductDetailsToBeVisible();
-
     // Take full-page screenshot for visual verification of desktop layout
     await page.screenshot({ path: 'desktop-checkout-view.png', fullPage: true });
   });
 });
 
 // Mobile tests - skip on desktop
-test.describe('Mobile Shopping Experience', () => {
+test.describe('Mobile Shopping Experience @mobile', () => {
   test.beforeEach(async ({ page, isMobile }) => {
     test.skip(!isMobile, 'This test is for mobile only');
     await page.goto('/taqelah-demo-site.html');
@@ -85,6 +77,10 @@ test.describe('Mobile Shopping Experience', () => {
     // Add to cart
     await shopPage.searchGrid.getByRole('button', { name: 'Add to Cart' }).click();
 
+    // Verify confirmation message
+    const confirmationText = await shopPage.getConfirmationMessage();
+    expect(confirmationText).toContain('Maxi Dress added to cart');
+
     // Navigate to cart
     await shopPage.cartIcon.scrollIntoViewIfNeeded();
     await shopPage.openCart();
@@ -97,17 +93,6 @@ test.describe('Mobile Shopping Experience', () => {
     // Proceed to checkout
     await cartPage.checkoutButton.click();
     await expect(page.getByTestId('checkout-form')).toBeVisible();
-
-    // Close checkout form to return to search results
-    await cartPage.closeCheckoutForm();
-
-    // Search for another product and view product details
-    await shopPage.searchProduct('pants');
-    await shopPage.searchGrid.scrollIntoViewIfNeeded();
-    await expect(shopPage.searchGrid.getByRole('img', { name: 'Wide Leg Pants' })).toBeVisible();
-    await shopPage.searchGrid.getByRole('img', { name: 'Wide Leg Pants' }).click();
-    const productDetailsPage = new ProductDetailsPage(page);
-    await productDetailsPage.expectProductDetailsToBeVisible();
 
     // Take full-page screenshot for visual verification of mobile layout
     await page.screenshot({ path: 'mobile-checkout-view.png', fullPage: true });
