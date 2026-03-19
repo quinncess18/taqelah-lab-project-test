@@ -1,0 +1,7 @@
+[
+  {
+    "username": "ladies",
+    "password": "ladies_GO",
+    "expectedRole": "customer"
+  }
+]

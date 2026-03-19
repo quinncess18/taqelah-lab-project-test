@@ -1,19 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
   testDir: './tests',
   timeout: 60000,
+  expect: { timeout: 5000 },
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',
   /* Run tests in files in parallel */
@@ -21,15 +11,17 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
+  retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+   // Ensure consistent test ordering for deterministic sharding
+  testMatch: '**/*.spec.ts',
    reporter: [
     ['list'],
+    ['blob'],
     ['html', {
       open: 'on-failure',  // 'always' | 'never' | 'on-failure'
-      outputFolder: 'playwright-report'
     }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -41,11 +33,10 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-     launchOptions: {
-    slowMo: 2000, // Adds 2 second delay between actions
-    headless: false,
-    
-  },
+    launchOptions: {
+      slowMo: 2000, // Adds 2 second delay between actions
+      headless: false,
+    },
   },
 
   /* Configure projects for major browsers */
@@ -66,14 +57,14 @@ export default defineConfig({
 //    },
 
     /* Test against mobile viewports. */
-     {
-       name: 'Mobile Chrome',
-       use: { ...devices['Pixel 5'] },
-     },
-     {
-       name: 'Mobile Safari',
-       use: { ...devices['iPhone 12'] },
-     },
+   {
+     name: 'Mobile Chrome',
+     use: { ...devices['Pixel 5'] },
+   },
+    // {
+    //   name: 'Mobile Safari',
+    //   use: { ...devices['iPhone 12'] },
+    // },
 
     /* Test against branded browsers. */
     // {
@@ -84,6 +75,58 @@ export default defineConfig({
     //   name: 'Google Chrome',
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
+
+    // Add these to the projects array
+    {
+      name: 'staging',
+      use: {
+      ...devices['Desktop Chrome'],
+      baseURL: 'https://taqelah.sg',
+      },
+    },
+    {
+      name: 'production',
+      use: {
+      ...devices['Desktop Chrome'],
+      baseURL: 'https://taqelah.sg',
+      },
+    },
+
+     // Smoke tests - run on all browsers
+    {
+      name: 'smoke-chromium',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'smoke-firefox',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'smoke-webkit',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
+
+    // Regression tests - Chromium only
+    {
+      name: 'regression',
+      testDir: './tests/regression',
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // Mobile tests - Android and iOS
+    {
+      name: 'Mobile Chrome',
+      testDir: './tests/mobile',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Safari',
+      testDir: './tests/mobile',
+      use: { ...devices['iPhone 13'] },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
