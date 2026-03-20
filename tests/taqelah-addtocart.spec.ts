@@ -75,7 +75,7 @@ test.describe('Mobile Shopping Experience @mobile', () => {
     await expect(shopPage.searchGrid.getByRole('img', { name: 'Maxi Dress' })).toBeVisible();
     
     // Add to cart
-    await shopPage.searchGrid.getByRole('button', { name: 'Add to Cart' }).click();
+    await shopPage.searchGrid.getByRole('button', { name: 'Add to Cart' }).tap();
 
     // Verify confirmation message
     const confirmationText = await shopPage.getConfirmationMessage();

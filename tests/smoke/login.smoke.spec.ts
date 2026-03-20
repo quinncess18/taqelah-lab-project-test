@@ -27,8 +27,9 @@ test.describe('Login Smoke Tests', () => {
     // Username must be exactly 6 letters
     await page.getByTestId('username-input').fill('test');
     await page.getByTestId('password-input').fill('test_GO');
+    await page.getByTestId('login-button').click();
 
     // Check for validation feedback
-    await expect(page.getByTestId('username-input')).toHaveAttribute('class', /invalid|error/);
+    await expect(page.getByTestId('username-error')).toHaveAttribute('class', 'error-message');
   });
 });

@@ -39,17 +39,23 @@ test.describe('Product Search - Parallel Safe', () => {
     await expect(productGrid).toBeVisible();
   });
 
-  test('filter by category - New In', async ({ page }) => {
-    // Click on category filter
-    await page.getByRole('link', { name: 'New In' }).click();
+    test('filter by category - New In', async ({ page }) => {
+  // Click on category filter
+  await page.getByRole('link', { name: 'New In' }).click();
 
-    // Verify products are filtered
-    await expect(page.getByTestId('search-grid')).toBeVisible();
-  });
+  // Wait for results to load
+  await page.waitForLoadState('networkidle');
 
-  test('filter by category - Sale', async ({ page }) => {
-    await page.getByRole('link', { name: 'Sale' }).click();
+  // Verify products are filtered
+  await expect(page.getByTestId('search-grid')).toBeVisible();
+});
 
-    await expect(page.getByTestId('search-grid')).toBeVisible();
-  });
+test('filter by category - Sale', async ({ page }) => {
+  await page.getByRole('link', { name: 'Sale' }).click();
+
+  // Wait for results to load
+  await page.waitForLoadState('networkidle');
+
+  await expect(page.getByTestId('search-grid')).toBeVisible();
+});
 });

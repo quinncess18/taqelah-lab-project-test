@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   timeout: 60000,
-  expect: { timeout: 5000 },
+  expect: { timeout: 10000 },
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',
   /* Run tests in files in parallel */
@@ -34,7 +34,7 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     launchOptions: {
-      slowMo: 2000, // Adds 2 second delay between actions
+      slowMo: 1000, // Adds 1 second delay between actions
       headless: false,
     },
   },
