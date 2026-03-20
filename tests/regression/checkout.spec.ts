@@ -1,23 +1,47 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
-// Configure this describe block to run serially
+// Parameterized promo code tests
+const promoCodes = [
+  { code: 'SAVE10', discount: '10%', description: '10% discount' },
+  { code: 'WELCOME20', discount: '20%', description: '20% discount' },
+  { code: 'FREESHIP', discount: 'Free Shipping', description: 'free shipping' },
+];
+
+/**
+ * Configure this file to run in serial mode.
+ * If one test fails, the subsequent tests will be skipped.
+ */
 test.describe.configure({ mode: 'serial' });
 
 test.describe('Checkout Flow - Serial Execution', () => {
 
+  /**
+   * SHARED PAGE INSTANCE: 
+   * Declaring 'page' here allows all test blocks to share the same browser window.
+   */
+  let page: Page;
+
   test.beforeAll(async ({ browser }) => {
-    // Setup that runs once before all tests in this file
-    console.log('Starting checkout flow tests');
+    // Create a single page instance for the entire flow
+    page = await browser.newPage();
+    console.log('Starting checkout flow tests...');
   });
 
-  test('step 1: login and search for product', async ({ page }) => {
+  test.afterAll(async () => {
+    // Close the page instance after all tests are completed
+    await page.close();
+  });
+
+  test('step 1: login and search for product', async () => {
+    // Step 1 handles the manual login and initial search
     await page.goto('/taqelah-demo-site.html');
 
-    // Login
+    // Perform Login
     await page.getByTestId('username-input').fill('ladies');
     await page.getByTestId('password-input').fill('ladies_GO');
     await page.getByTestId('login-button').click();
 
+    // Verify login was successful
     await expect(page.getByTestId('search-input')).toBeVisible();
 
     // Search for product
@@ -25,73 +49,59 @@ test.describe('Checkout Flow - Serial Execution', () => {
     await expect(page.getByTestId('search-grid')).toBeVisible();
   });
 
-  test('step 2: add product to cart', async ({ page }) => {
-    await page.goto('/taqelah-demo-site.html');
-
-    // Login
-    await page.getByTestId('username-input').fill('ladies');
-    await page.getByTestId('password-input').fill('ladies_GO');
-    await page.getByTestId('login-button').click();
-
-    // Search and add to cart
-    await page.getByTestId('search-input').fill('maxi dress');
+  test('step 2: add product to cart', async () => {
+    /**
+     * Do NOT use page.goto() here. 
+     * We are continuing from the state left by Step 1.
+     */
     await page.getByTestId('search-grid').getByTestId('product-name-6').click();
     await page.getByTestId('product-details-add-to-cart').click();
 
-    // Verify cart icon shows item
+    // Open cart and verify the Shopping Cart heading
     await page.getByTestId('cart-icon').click();
     await expect(page.getByRole('heading', { name: 'Shopping Cart' })).toBeVisible();
   });
 
-  test('step 3: proceed to checkout', async ({ page }) => {
-    await page.goto('/taqelah-demo-site.html');
-
-    // Login and add product
-    await page.getByTestId('username-input').fill('ladies');
-    await page.getByTestId('password-input').fill('ladies_GO');
-    await page.getByTestId('login-button').click();
-
-    await page.getByTestId('search-input').fill('maxi dress');
-    await page.getByTestId('search-grid').getByTestId('product-name-6').click();
-    await page.getByTestId('product-details-add-to-cart').click();
-
-    // Go to cart and checkout
-    await page.getByTestId('cart-icon').click();
+  test('step 3: proceed to checkout', async () => {
+    // Navigate to the checkout form from the cart
     await page.getByTestId('checkout-button').click();
 
-    // Verify checkout form is visible
-    await expect(page.getByTestId('checkout-name')).toBeVisible();
+    // Verify the checkout name field is visible
+    await expect(page.getByTestId('checkout-modal')).toBeVisible();
   });
 
-  test('step 4: complete checkout form', async ({ page }) => {
-    await page.goto('/taqelah-demo-site.html');
+  test('step 4: complete checkout form', async () => {
+    // Toggle promo code section
+      await page.getByTestId('promo-toggle').click();
 
-    // Login, add product, go to checkout
-    await page.getByTestId('username-input').fill('ladies');
-    await page.getByTestId('password-input').fill('ladies_GO');
-    await page.getByTestId('login-button').click();
-
-    await page.getByTestId('search-input').fill('maxi dress');
-    await page.getByTestId('search-grid').getByTestId('product-name-6').click();
-    await page.getByTestId('product-details-add-to-cart').click();
-
-    await page.getByTestId('cart-icon').click();
-    await page.getByTestId('checkout-button').click();
-
-    // Fill checkout form
-    await page.getByTestId('checkout-name').fill('Jane Doe');
-    await page.getByTestId('checkout-email').fill('jane@example.com');
-    await page.getByTestId('checkout-address').fill('123 Fashion Street');
-    await page.getByTestId('checkout-city').fill('Singapore');
-    await page.getByTestId('checkout-state').fill('SG');
-    await page.getByTestId('checkout-postal').fill('123456');
-    await page.getByTestId('checkout-country').fill('Singapore');
+    /**
+    * ACCESSING THE PROMO CODE:
+    * Since 'promoCodes' is an array of objects, 
+    * use [0] for the first item, and .code for the string value.
+    */
+    const myPromo = promoCodes[0];
 
     // Apply promo code
-    await page.getByTestId('promo-code-input').fill('SAVE10');
+    await page.getByTestId('promo-code-input').fill(myPromo.code);
     await page.getByTestId('apply-promo-button').click();
 
-    // Verify discount applied
-    await expect(page.getByText('10%')).toBeVisible();
+    // Verify discount is applied
+    await expect(page.getByTestId('applied-promo-code')).toContainText(myPromo.code);
+    await expect(page.getByTestId('applied-promo-code')).toContainText(myPromo.discount);
+
+    // Fill in the shipping and billing details
+    await page.getByTestId('full-name-input').fill('Jane Doe');
+    await page.getByTestId('email-input').fill('jane@example.com');
+    await page.getByTestId('phone-input').fill('+1234567890');
+    await page.getByTestId('address1-input').fill('123 Fashion Street');
+    await page.getByTestId('city-input').fill('Singapore');
+    await page.getByTestId('state-input').fill('SG');
+    await page.getByTestId('postal-input').fill('123456');
+    await page.getByTestId('country-select').click();
+    await page.getByTestId('country-select').selectOption('Singapore');
+
+    // Verify the 10% discount is visible in the UI
+    await expect(page.getByText('10%').first()).toBeVisible();
   });
+
 });
