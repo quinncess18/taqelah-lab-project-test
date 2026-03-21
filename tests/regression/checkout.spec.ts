@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from '../../fixtures/worker-fixture';
 
 // Parameterized promo code tests
 const promoCodes = [
@@ -70,7 +70,7 @@ test.describe('Checkout Flow - Serial Execution', () => {
     await expect(page.getByTestId('checkout-modal')).toBeVisible();
   });
 
-  test('step 4: complete checkout form', async () => {
+  test('step 4: complete checkout form', async ({ uniqueEmail }) => {
     // Toggle promo code section
       await page.getByTestId('promo-toggle').click();
 
@@ -91,7 +91,7 @@ test.describe('Checkout Flow - Serial Execution', () => {
 
     // Fill in the shipping and billing details
     await page.getByTestId('full-name-input').fill('Jane Doe');
-    await page.getByTestId('email-input').fill('jane@example.com');
+    await page.getByTestId('email-input').fill(uniqueEmail);
     await page.getByTestId('phone-input').fill('+1234567890');
     await page.getByTestId('address1-input').fill('123 Fashion Street');
     await page.getByTestId('city-input').fill('Singapore');

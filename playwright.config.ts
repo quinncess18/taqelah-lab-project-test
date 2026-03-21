@@ -3,7 +3,25 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   timeout: 60000,
-  expect: { timeout: 10000 },
+  
+  // Visual testing specific settings
+  expect: {
+    toHaveScreenshot: {
+      // Maximum allowed pixel difference
+      maxDiffPixels: 100,
+      // Or use percentage threshold
+      maxDiffPixelRatio: 0.01,
+      // Animation handling
+      animations: 'disabled',
+      // Caret hiding
+      caret: 'hide',
+    },
+    toMatchSnapshot: {
+      // Threshold for image comparison
+      threshold: 0.2,
+    },
+  },
+  
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',
   /* Run tests in files in parallel */
@@ -17,7 +35,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
    // Ensure consistent test ordering for deterministic sharding
   testMatch: '**/*.spec.ts',
-   reporter: [
+  reporter: [
     ['list'],
     ['blob'],
     ['html', {
@@ -109,11 +127,18 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
 
+    // Setup tests - run once before all other tests
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+
     // Regression tests - Chromium only
     {
       name: 'regression',
       testDir: './tests/regression',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
     },
 
     // Mobile tests - Android and iOS
@@ -121,11 +146,40 @@ export default defineConfig({
       name: 'Mobile Chrome',
       testDir: './tests/mobile',
       use: { ...devices['Pixel 5'] },
+      dependencies: ['setup'],
     },
     {
       name: 'Mobile Safari',
       testDir: './tests/mobile',
       use: { ...devices['iPhone 13'] },
+      dependencies: ['setup'],
+    },
+
+     // Visual testing - consistent environment required
+    {
+      name: 'visual-tests',
+      testDir: './tests/visual',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Fixed viewport for consistent screenshots
+        viewport: { width: 1280, height: 720 },
+        // Disable animations for stable screenshots
+        launchOptions: {
+          args: ['--disable-animations'],
+        },
+      },
+      // Run visual tests serially for consistency
+      fullyParallel: false,
+    },
+
+    // Visual testing on different viewports
+    {
+      name: 'visual-mobile',
+      testDir: './tests/visual',
+      use: {
+        ...devices['iPhone 13'],
+      },
+      fullyParallel: false,
     },
   ],
 

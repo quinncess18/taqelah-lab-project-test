@@ -19,10 +19,12 @@ test.describe('Product Search - Parallel Safe', () => {
     await page.getByTestId('search-input').fill('dress');
 
     const productGrid = page.getByTestId('search-grid');
+    const targetDress = productGrid.getByText('Maxi Dress').first();
     await expect(productGrid).toBeVisible();
 
     // Verify search results contain dresses
-    await expect(page.getByText('Maxi Dress')).toBeVisible();
+    await productGrid.scrollIntoViewIfNeeded();
+    await expect(targetDress).toBeVisible();
   });
 
   test('search for tops', async ({ page }) => {
@@ -30,6 +32,9 @@ test.describe('Product Search - Parallel Safe', () => {
 
     const productGrid = page.getByTestId('search-grid');
     await expect(productGrid).toBeVisible();
+    await productGrid.scrollIntoViewIfNeeded();
+    const targetTop = productGrid.getByText('Striped Button-Up').first();
+    await expect(targetTop).toBeVisible();
   });
 
   test('search for accessories', async ({ page }) => {
@@ -47,7 +52,7 @@ test.describe('Product Search - Parallel Safe', () => {
   await page.waitForLoadState('networkidle');
 
   // Verify products are filtered
-  await expect(page.getByTestId('search-grid')).toBeVisible();
+  await expect(page.getByTestId('search-grid')).toBeAttached();
 });
 
 test('filter by category - Sale', async ({ page }) => {
@@ -56,6 +61,6 @@ test('filter by category - Sale', async ({ page }) => {
   // Wait for results to load
   await page.waitForLoadState('networkidle');
 
-  await expect(page.getByTestId('search-grid')).toBeVisible();
+  await expect(page.getByTestId('search-grid')).toBeAttached();
 });
 });

@@ -48,32 +48,42 @@ const promoCodes = [
 
 test.describe('Parameterized Promo Codes', () => {
 
-  promoCodes.forEach(({ code, discount, description }) => {
-    test(`apply promo code for ${description}`, async ({ page }) => {
-      await page.goto('/taqelah-demo-site.html');
+  /**
+   * Setup: Handles authentication and cart preparation before each test case.
+   * This ensures isolation and follows the "Full Parallelization" requirement.
+   */
+  test.beforeEach(async ({ page }) => {
+    // Navigate and Login
+    await page.goto('/taqelah-demo-site.html');
+    await page.getByTestId('username-input').fill('ladies');
+    await page.getByTestId('password-input').fill('ladies_GO');
+    await page.getByTestId('login-button').click();
 
-      // Login
-      await page.getByTestId('username-input').fill('ladies');
-      await page.getByTestId('password-input').fill('ladies_GO');
-      await page.getByTestId('login-button').click();
+    // Select a product and add to cart
+    await page.getByTestId('search-input').fill('maxi dress');
+    await page.getByTestId('search-grid').getByTestId('product-name-6').click();
+    await page.getByTestId('product-details-add-to-cart').click();
 
-      // Add product to cart
-      await page.getByTestId('search-input').fill('maxi dress');
-      await page.getByTestId('search-grid').getByTestId('product-name-6').click();
-      await page.getByTestId('product-details-add-to-cart').click();
+    // Proceed to checkout and prepare promo section
+    await page.getByTestId('cart-icon').click();
+    await page.getByTestId('checkout-button').click();
+    await page.getByTestId('promo-toggle').click();
+  });
 
-      // Go to checkout
-      await page.getByTestId('cart-icon').click();
-      await page.getByTestId('checkout-button').click();
+  /**
+   * Data-Driven Execution: Loops through the promoCodes array to generate 
+   * unique test instances for each discount scenario.
+   */
+  promoCodes.forEach(({ code, description }) => {
+    test(`Verify promo code application for: ${description}`, async ({ page }) => {
+      // Apply the specific promo code for this iteration
+      const promoInput = page.getByTestId('promo-code-input');
+      const applyBtn = page.getByTestId('apply-promo-button');
 
-      // Toggle promo code section
-      await page.getByTestId('promo-toggle').click();
+      await promoInput.fill(code);
+      await applyBtn.click();
 
-      // Apply promo code
-      await page.getByTestId('promo-code-input').fill(code);
-      await page.getByTestId('apply-promo-button').click();
-
-      // Verify discount is applied
+      // Assert that the discount is correctly reflected in the UI
       await expect(page.getByTestId('applied-promo-code')).toContainText(code);
     });
   });
