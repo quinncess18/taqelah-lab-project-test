@@ -163,6 +163,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Fixed viewport for consistent screenshots
         viewport: { width: 1280, height: 720 },
+        headless: true,  // Consistent rendering
         // Disable animations for stable screenshots
         launchOptions: {
           args: ['--disable-animations'],
