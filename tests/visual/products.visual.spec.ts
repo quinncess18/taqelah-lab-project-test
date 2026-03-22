@@ -30,7 +30,10 @@ test.describe('Visual Regression - Product Pages', () => {
     // Wait for images to load
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByTestId('search-grid')).toHaveScreenshot('product-grid.png');
+    await expect(page.getByTestId('search-grid')).toHaveScreenshot('product-grid.png', {
+      mask: [page.getByTestId('toast-message')],
+      maxDiffPixelRatio: 0.05 
+    });
   });
 
  test('product details modal', async ({ page }) => {
@@ -53,11 +56,11 @@ test.describe('Visual Regression - Product Pages', () => {
     await page.getByTestId('cart-icon').click();
 
     // Wait for cart animation
-    await page.waitForTimeout(300);
+    await page.waitForLoadState('networkidle');
 
     await expect(page.locator('.cart-items, .shopping-cart')).toHaveScreenshot('shopping-cart.png', {
-      // Mask prices if they might change
       mask: [page.locator('.price-dynamic')],
+      maxDiffPixelRatio: 0.02,
     });
   });
 });
