@@ -27,14 +27,21 @@ test.describe('Visual Regression - Product Pages', () => {
     await page.getByTestId('search-input').fill('dress');
     await expect(page.getByTestId('search-grid')).toBeVisible();
 
-    // Wait for images to load
-    await page.waitForLoadState('networkidle');
+  // Wait for images to load
+  await page.waitForLoadState('networkidle');
 
-    await expect(page.getByTestId('search-grid')).toHaveScreenshot('product-grid.png', {
-      mask: [page.getByTestId('toast-message')],
-      maxDiffPixelRatio: 0.05 
-    });
+  // Close any overlays from previous test state
+  await page.getByRole('button', { name: '×' }).first().click({ timeout: 1000 }).catch(() => {});
+
+  await expect(page.getByTestId('search-grid')).toHaveScreenshot('product-grid.png', {
+    mask: [
+      page.getByTestId('toast-message'),
+      page.locator('[role="dialog"]'),  // Modal dialogs
+      page.locator('.notification'),    // Notification stack
+    ],
+    maxDiffPixelRatio: 0.02  // Tighten threshold after masking
   });
+});
 
  test('product details modal', async ({ page }) => {
     await page.getByTestId('search-input').fill('maxi dress');
