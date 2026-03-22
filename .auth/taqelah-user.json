@@ -2,37 +2,37 @@
   "cookies": [
     {
       "name": "_ga",
-      "value": "GA1.1.2131411443.1774155815",
+      "value": "GA1.1.1333690538.1774157789",
       "domain": ".taqelah.sg",
       "path": "/",
-      "expires": 1808715814.634699,
+      "expires": 1808717788.89567,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     },
     {
       "name": "_fbp",
-      "value": "fb.1.1774155814963.118934407863217410",
+      "value": "fb.1.1774157789396.72464898282856760",
       "domain": ".taqelah.sg",
       "path": "/",
-      "expires": 1781931814,
+      "expires": 1781933789,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     },
     {
       "name": "_ga_WFB1TGMGH2",
-      "value": "GS2.1.s1774155814$o1$g0$t1774155815$j59$l0$h0",
+      "value": "GS2.1.s1774157788$o1$g0$t1774157789$j59$l0$h0",
       "domain": ".taqelah.sg",
       "path": "/",
-      "expires": 1808715815.028682,
+      "expires": 1808717789.4781,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     },
     {
       "name": "_cfuvid",
-      "value": "9.PCTwHc4V80U7qOpU1DZqufuKiw35VDHxLBPBfw4CY-1774155815.3058517-1.0.1.1-mRLqRStlwAcSYVHruEsAYjGAFS1oP2aQ4u5RRnz2nDM",
+      "value": "AUPg.Dnl90GpwBFsnYv9F_fQNjXlHaRWS.r6uZ3Zedo-1774157789.7835894-1.0.1.1-n.2YewHr7I1lFl1kCBoBRYdKO.MIHUgmnJSsyLKrHMY",
       "domain": ".pexels.com",
       "path": "/",
       "expires": -1,
@@ -51,7 +51,7 @@
         },
         {
           "name": "lastExternalReferrerTime",
-          "value": "1774155814954"
+          "value": "1774157789385"
         },
         {
           "name": "taqelahCart",
