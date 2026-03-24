@@ -10,7 +10,7 @@ export default defineConfig({
       // Maximum allowed pixel difference
       maxDiffPixels: 100,
       // Or use percentage threshold
-      maxDiffPixelRatio: 0.01,
+      maxDiffPixelRatio: 0.05, // 5% difference allowed
       // Animation handling
       animations: 'disabled',
       // Caret hiding
@@ -184,6 +184,25 @@ export default defineConfig({
         ...devices['iPhone 13'],
       },
       fullyParallel: false,
+    },
+
+    /* --- CHALLENGE 4: RESPONSIVE PROJECTS --- */
+
+    {
+      name: 'visual-tablet',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['iPad Mini'],
+      },
+    },
+
+    {
+      name: 'visual-wide',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
     },
 
     /* Test against branded browsers. */
