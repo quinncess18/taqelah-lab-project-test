@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 60000,
+  timeout: 20000, // 20 seconds per test
   
   // Visual testing specific settings
   expect: {
@@ -31,7 +31,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
    // Ensure consistent test ordering for deterministic sharding
   testMatch: '**/*.spec.ts',
@@ -52,79 +52,58 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     launchOptions: {
-      slowMo: 1000, // Adds 1 second delay between actions
+      // slowMo: 1000, // Adds 1 second delay between actions
       headless: false,
     },
   },
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}-{platform}{ext}',
 
-  /* Configure projects for major browsers */
+  // Test against different environments.
   projects: [
+
+    // Functional tests - run on all desktop browsers, excluding visual tests
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-//    {
-//      name: 'firefox',
-//      use: { ...devices['Desktop Firefox'] },
-//    },
-
-//    {
-//      name: 'webkit',
-//      use: { ...devices['Desktop Safari'] },
-//    },
-
-    /* Test against mobile viewports. */
-   {
-     name: 'Mobile Chrome',
-     use: { ...devices['Pixel 5'] },
-   },
-     {
-       name: 'Mobile Safari',
-       use: { ...devices['iPhone 12'] },
-     },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-
-    // Add these to the projects array
-    {
-      name: 'staging',
+      name: 'main-desktop-chrome',
+      testIgnore: '**/*.visual.spec.ts',
       use: {
-      ...devices['Desktop Chrome'],
-      baseURL: 'https://taqelah.sg',
+        ...devices['Desktop Chrome'],
+        },
+    },
+    {
+      name: 'main-desktop-firefox',
+      timeout: 60000, // Reduced from 120s to 60s (1 minute is enough for 186 tests)
+      testIgnore: '**/*.visual.spec.ts', 
+      use: {
+        ...devices['Desktop Firefox'],
+        // No need for custom expect timeouts here; keep it global
       },
     },
     {
-      name: 'production',
+      name: 'main-desktop-safari',
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: {
-      ...devices['Desktop Chrome'],
-      baseURL: 'https://taqelah.sg',
-      },
+        ...devices['Desktop Safari'],
+        },
     },
 
-     // Smoke tests - run on all browsers
+    // Mobile browsers - run on mobile devices, excluding visual tests
     {
-      name: 'smoke-chromium',
-      testMatch: /.*\.smoke\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      name: 'mobile-safari',
+      testDir: './tests/mobile', // Specify a separate directory for mobile tests
+      use: {
+        ...devices['iPhone 13'],
+      },
+      fullyParallel: false,
+      dependencies: ['setup'],
     },
     {
-      name: 'smoke-firefox',
-      testMatch: /.*\.smoke\.spec\.ts/,
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'smoke-webkit',
-      testMatch: /.*\.smoke\.spec\.ts/,
-      use: { ...devices['Desktop Safari'] },
+      name: 'mobile-chrome',
+      testDir: './tests/mobile', // Specify a separate directory for mobile tests
+      use: {
+        ...devices['Pixel 5'],
+      },
+      fullyParallel: false,
+      dependencies: ['setup'],
     },
 
     // Setup tests - run once before all other tests
@@ -133,29 +112,54 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/,
     },
 
+     // Smoke tests - run on all browsers
+    {
+      name: 'smoke-chromium',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from smoke tests
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'smoke-firefox',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from smoke tests
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'smoke-webkit',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from smoke tests
+      use: { ...devices['Desktop Safari'] },
+    },
+
+    // Desktop browsers with specific base URLs for staging and production environments
+    {
+      name: 'staging',
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
+      use: {
+      ...devices['Desktop Chrome'],
+      baseURL: 'https://taqelah.sg',
+      },
+    },
+    {
+      name: 'production',
+      testMatch: /.*\.smoke\.spec\.ts/,
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
+      use: {
+      ...devices['Desktop Chrome'],
+      baseURL: 'https://taqelah.sg',
+      },
+    },
+
     // Regression tests - Chromium only
     {
       name: 'regression',
-      testDir: './tests/regression',
+      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
 
-    // Mobile tests - Android and iOS
-    {
-      name: 'Mobile Chrome',
-      testDir: './tests/mobile',
-      use: { ...devices['Pixel 5'] },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'Mobile Safari',
-      testDir: './tests/mobile',
-      use: { ...devices['iPhone 13'] },
-      dependencies: ['setup'],
-    },
-
-     // Visual testing - consistent environment required
+    // Visual testing - run on a single browser with specific settings for stable screenshots
     {
       name: 'visual-tests',
       testDir: './tests/visual',
@@ -163,7 +167,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Fixed viewport for consistent screenshots
         viewport: { width: 1280, height: 720 },
-        headless: true,  // Consistent rendering
         // Disable animations for stable screenshots
         launchOptions: {
           args: ['--disable-animations'],
@@ -182,6 +185,16 @@ export default defineConfig({
       },
       fullyParallel: false,
     },
+
+    /* Test against branded browsers. */
+    // {
+    //   name: 'Microsoft Edge',
+    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    // },
+    // {
+    //   name: 'Google Chrome',
+    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    // },
   ],
 
   /* Run your local dev server before starting the tests */

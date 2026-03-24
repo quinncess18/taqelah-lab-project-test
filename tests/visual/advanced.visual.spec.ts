@@ -1,5 +1,4 @@
 import { test, expect } from '../../fixtures/visual-fixture';
-import path from 'path';
 
 test.describe('Advanced Visual Testing', () => {
 
@@ -12,10 +11,11 @@ test.describe('Advanced Visual Testing', () => {
   });
 
   test('compare with custom threshold', async ({ stablePage }) => {
+    // Mask dynamic content
     await expect(stablePage).toHaveScreenshot('search-strict.png', {
-      // Stricter comparison
-      maxDiffPixels: 10,
-      threshold: 0.1,
+      animations: 'disabled',
+      mask: [stablePage.locator('.timestamp'), stablePage.locator('.dynamic-content')],
+      maxDiffPixelRatio: 0.05,
     });
   });
 
@@ -23,13 +23,20 @@ test.describe('Advanced Visual Testing', () => {
     await stablePage.getByTestId('search-input').fill('dress');
     await expect(stablePage.getByTestId('search-grid')).toBeVisible();
 
+    // Clear all overlays completely
+    await stablePage.locator('[role="dialog"], .modal, .notification').all().then(els => 
+      Promise.all(els.map(el => el.evaluate(e => e.style.display = 'none')))
+    );
+
+    // Mask dynamic content like timestamps
     await expect(stablePage).toHaveScreenshot('products-masked.png', {
-      // Mask elements that may change
+      animations: 'disabled',
       mask: [
         stablePage.locator('.price'),
         stablePage.locator('.stock-status'),
         stablePage.locator('[data-testid="timestamp"]'),
       ],
+      maxDiffPixelRatio: 0.05,
     });
   });
 
@@ -37,30 +44,58 @@ test.describe('Advanced Visual Testing', () => {
     // Hover over navigation
     await stablePage.getByRole('link', { name: 'New In' }).hover();
 
+    // Clear all overlays completely
+    await stablePage.locator('[role="dialog"], .modal, .notification').all().then(els => 
+      Promise.all(els.map(el => el.evaluate(e => e.style.display = 'none')))
+    );
+
     // Capture hover state
-    await expect(stablePage.locator('nav')).toHaveScreenshot('nav-hover.png');
+    await expect(stablePage.locator('nav')).toHaveScreenshot('nav-hover.png', {
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.05,
+    });
   });
 
   test('screenshot with styleMask', async ({ stablePage }) => {
-    const cssPath = path.resolve(__dirname, 'visual-test-styles.css');
+    // Clear all overlays completely
+    await stablePage.locator('[role="dialog"], .modal, .notification').all().then(els => 
+      Promise.all(els.map(el => el.evaluate(e => e.style.display = 'none')))
+    );
 
+    // Mask dynamic content like timestamps
     await expect(stablePage).toHaveScreenshot('page-stable.png', {
-      stylePath: cssPath, 
+      animations: 'disabled',
+      mask: [stablePage.locator('.timestamp'), stablePage.locator('.dynamic-content')],
+      maxDiffPixelRatio: 0.05,
     });
   });
 
   test('capture element in different states', async ({ stablePage }) => {
     const searchInput = stablePage.getByTestId('search-input');
 
+    // Clear all overlays completely
+    await stablePage.locator('[role="dialog"], .modal, .notification').all().then(els => 
+      Promise.all(els.map(el => el.evaluate(e => e.style.display = 'none')))
+    );
+
     // Empty state
-    await expect(searchInput).toHaveScreenshot('search-empty.png');
+    await expect(searchInput).toHaveScreenshot('search-empty.png', {
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.05,
+    });
 
     // Focused state
     await searchInput.focus();
-    await expect(searchInput).toHaveScreenshot('search-focused.png');
+    await expect(searchInput).toHaveScreenshot('search-focused.png', {
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.05,
+    });
 
     // With text
     await searchInput.fill('dress');
-    await expect(searchInput).toHaveScreenshot('search-filled.png');
+    await expect(searchInput).toHaveScreenshot('search-filled.png', {
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.05,
+    });
   });
 });

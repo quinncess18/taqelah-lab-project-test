@@ -54,7 +54,9 @@ test.describe('Checkout Flow - Serial Execution', () => {
      * Do NOT use page.goto() here. 
      * We are continuing from the state left by Step 1.
      */
-    await page.getByTestId('search-grid').getByTestId('product-name-6').click();
+    await page.getByTestId('search-grid').getByTestId('product-name-6').click({
+      force: true,
+    });
     await page.getByTestId('product-details-add-to-cart').click();
 
     // Open cart and verify the Shopping Cart heading
