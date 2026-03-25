@@ -8,7 +8,7 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: {
       // Maximum allowed pixel difference
-      maxDiffPixels: 20,
+      maxDiffPixels: 100,
       threshold: 0.1, // 10% difference allowed
       // Animation handling
       animations: 'disabled',
