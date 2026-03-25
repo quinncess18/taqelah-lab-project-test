@@ -196,20 +196,20 @@ export default defineConfig({
     },
 
     {
-      name: 'visual-wide',
+      name: 'visual-widescreen',
       testDir: './tests/visual',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
+        // Fixed viewport for consistent screenshots
         viewport: { width: 1920, height: 1080 },
+        // Disable animations for stable screenshots
+        launchOptions: {
+          args: ['--disable-animations'],
+        },
       },
-      expect: {
-    toHaveScreenshot: {
-      maxDiffPixelRatio: 0.1, 
-      threshold: 0.2,
-      animations: 'disabled',
-      },
+      // Run visual tests serially for consistency
+      fullyParallel: false,
     },
-  },
 
     /* Test against branded browsers. */
     // {
