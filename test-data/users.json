@@ -2,26 +2,31 @@
   {
     "username": "ladies",
     "password": "ladies_GO",
-    "expectedRole": "customer"
+    "expectedRole": "customer",
+    "promoCode": "SAVE10"
   },
   {
     "username": "autumn",
     "password": "autumn_GO",
-    "expectedRole": "customer"
+    "expectedRole": "customer",
+    "promoCode": "WELCOME20"
   },
   {
     "username": "spring",
     "password": "spring_GO",
-    "expectedRole": "customer"
+    "expectedRole": "customer",
+    "promoCode": "FREESHIP"
   },
   {
     "username": "winter",
     "password": "winter_GO",
-    "expectedRole": "customer"
+    "expectedRole": "customer",
+    "promoCode": "SAVE10"
   },
   {
     "username": "guest",
     "password": "guest_GO",
-    "expectedRole": "guest"
+    "expectedRole": "guest",
+    "promoCode": null
   }
 ]

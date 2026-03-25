@@ -1,90 +1,83 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
 import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as path from 'path';
+import customers from '../../test-data/users.json';
+
+interface Product {
+  productId: string;
+  searchTerm: string;
+  productName: string;
+  category: string;
+}
 
 // Load test data from CSV
 const csvPath = path.join(__dirname, '../../test-data/products.csv');
-const products = parse(fs.readFileSync(csvPath, 'utf-8'), {
+const products: Product[] = parse(fs.readFileSync(csvPath, 'utf-8'), {
   columns: true,
   skip_empty_lines: true,
 });
 
-test.describe('Parameterized Product Search', () => {
+// Filter only customer users with assigned promo codes
+const testUsers = customers.filter(user => user.expectedRole === 'customer' && user.promoCode);
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/taqelah-demo-site.html');
-
-    // Login
-    await page.getByTestId('username-input').fill('ladies');
-    await page.getByTestId('password-input').fill('ladies_GO');
-    await page.getByTestId('login-button').click();
-
-    await expect(page.getByTestId('search-input')).toBeVisible();
-  });
-
-  // Generate tests from CSV data
-  for (const product of products) {
-    test(`search for ${product.productName} in ${product.category}`, async ({ page }) => {
-      // Search for product
-      await page.getByTestId('search-input').fill(product.searchTerm);
-
-      // Wait for search results
-      await expect(page.getByTestId('search-grid')).toBeVisible();
-
-      // Verify product is in results
-      const productElement = page.getByTestId('search-grid').getByTestId(`product-name-${product.productId}`);
-      await expect(productElement).toBeVisible();
-    });
-  }
-});
-
-// Parameterized promo code tests
-const promoCodes = [
-  { code: 'SAVE10', discount: '10%', description: '10% discount' },
-  { code: 'WELCOME20', discount: '20%', description: '20% discount' },
-  { code: 'FREESHIP', discount: 'Free Shipping', description: 'free shipping' },
-];
-
-test.describe('Parameterized Promo Codes', () => {
-
+test.describe('Parameterized Promo Codes with Multiple Users', () => {
   /**
-   * Setup: Handles authentication and cart preparation before each test case.
-   * This ensures isolation and follows the "Full Parallelization" requirement.
+   * Data-Driven Testing: Loops through each customer user
+   * Each user logs in, adds multiple products to cart, proceeds to checkout once,
+   * and applies a single promo code
    */
-  test.beforeEach(async ({ page }) => {
-    // Navigate and Login
-    await page.goto('/taqelah-demo-site.html');
-    await page.getByTestId('username-input').fill('ladies');
-    await page.getByTestId('password-input').fill('ladies_GO');
-    await page.getByTestId('login-button').click();
+  testUsers.forEach((user) => {
+    test(`User: ${user.username} - Apply promo code: ${user.promoCode}`, async ({ page }) => {
+      // Navigate and Login
+      const loginPage = new LoginPage(page);
+      await loginPage.goto();
+      await loginPage.login(user.username, user.password);
 
-    // Select a product and add to cart
-    await page.getByTestId('search-input').fill('maxi dress');
-    await page.getByTestId('search-grid').getByTestId('product-name-6').click();
-    await page.getByTestId('product-details-add-to-cart').click();
+      // Verify login successful
+      await expect(page.getByText('Spring Collection 2025')).toBeVisible();
 
-    // Proceed to checkout and prepare promo section
-    await page.getByTestId('cart-icon').click();
-    await page.getByTestId('checkout-button').click();
-    await page.getByTestId('promo-toggle').click();
-  });
+      // Add multiple products to cart
+      for (const product of products) {
+        // Search for product
+        await page.getByTestId('search-input').fill(product.searchTerm);
+        
+        // Wait for search results
+        await expect(page.getByTestId('search-grid')).toBeVisible();
 
-  /**
-   * Data-Driven Execution: Loops through the promoCodes array to generate 
-   * unique test instances for each discount scenario.
-   */
-  promoCodes.forEach(({ code, description }) => {
-    test(`Verify promo code application for: ${description}`, async ({ page }) => {
-      // Apply the specific promo code for this iteration
+        // Click on the product
+        const productElement = page.getByTestId('search-grid').getByTestId(`product-name-${product.productId}`);
+        await expect(productElement).toBeVisible();
+        await productElement.click();
+
+        // Add to cart
+        await page.getByTestId('product-details-add-to-cart').click();
+
+        // Wait for search grid to reappear after add to cart
+        await expect(page.getByTestId('search-grid')).toBeVisible();
+
+        // Clear search input for next product search
+        await page.getByTestId('search-input').clear();
+      }
+
+      // Proceed to checkout
+      await page.getByTestId('cart-icon').click();
+      await page.getByTestId('checkout-button').click();
+
+      // Expand promo code section
+      await page.getByTestId('promo-toggle').click();
+      await expect(page.getByTestId('promo-code-input')).toBeVisible();
+
+      // Apply the assigned promo code for this user
       const promoInput = page.getByTestId('promo-code-input');
       const applyBtn = page.getByTestId('apply-promo-button');
 
-      await promoInput.fill(code);
+      await promoInput.fill(user.promoCode!);
       await applyBtn.click();
 
       // Assert that the discount is correctly reflected in the UI
-      await expect(page.getByTestId('applied-promo-code')).toContainText(code);
+      await expect(page.getByTestId('applied-promo-code')).toContainText(user.promoCode!);
     });
   });
 });
