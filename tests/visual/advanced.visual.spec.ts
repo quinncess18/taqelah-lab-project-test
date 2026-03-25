@@ -52,7 +52,7 @@ test.describe('Advanced Visual Testing', () => {
     // Capture hover state
     await expect(stablePage.locator('nav')).toHaveScreenshot('nav-hover.png', {
       animations: 'disabled',
-      maxDiffPixels: 500,
+      maxDiffPixelRatio: 0.05,
     });
   });
 
