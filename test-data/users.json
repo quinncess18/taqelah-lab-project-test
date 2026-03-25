@@ -3,5 +3,25 @@
     "username": "ladies",
     "password": "ladies_GO",
     "expectedRole": "customer"
+  },
+  {
+    "username": "autumn",
+    "password": "autumn_GO",
+    "expectedRole": "customer"
+  },
+  {
+    "username": "spring",
+    "password": "spring_GO",
+    "expectedRole": "customer"
+  },
+  {
+    "username": "winter",
+    "password": "winter_GO",
+    "expectedRole": "customer"
+  },
+  {
+    "username": "guest",
+    "password": "guest_GO",
+    "expectedRole": "guest"
   }
 ]
