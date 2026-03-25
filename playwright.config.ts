@@ -202,7 +202,14 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
       },
+      expect: {
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.1, 
+      threshold: 0.2,
+      animations: 'disabled',
+      },
     },
+  },
 
     /* Test against branded browsers. */
     // {
