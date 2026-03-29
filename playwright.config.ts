@@ -231,7 +231,7 @@ export default defineConfig({
     // 3. New Mocking Project (Network Mocking)
     {
       name: 'api-mocking',
-      testDir: './tests/',
+      testDir: './tests/api-mocking/',
       use: {
         baseURL: 'http://localhost:8080',
         ...devices['Desktop Chrome'],
