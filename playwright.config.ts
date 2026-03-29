@@ -211,6 +211,37 @@ export default defineConfig({
       fullyParallel: false,
     },
 
+    // 2. New API Project (Localhost)
+    {
+      name: 'api-local',
+      testDir: './tests/',
+      use: {
+        baseURL: 'http://localhost:8080',
+        ...devices['Desktop Chrome'],
+        extraHTTPHeaders: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        screenshot: 'off',
+      },
+      fullyParallel: false,
+      workers: 1,
+    },
+
+    // 3. New Mocking Project (Network Mocking)
+    {
+      name: 'api-mocking',
+      testDir: './tests/',
+      use: {
+        baseURL: 'http://localhost:8080',
+        ...devices['Desktop Chrome'],
+        extraHTTPHeaders: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      },
+    },
+
     /* Test against branded browsers. */
     // {
     //   name: 'Microsoft Edge',

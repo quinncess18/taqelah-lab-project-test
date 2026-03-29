@@ -1,10 +1,13 @@
 {
   "name": "taqelah-lab-project",
   "version": "1.0.0",
-  "description": "",
+  "description": "Live and API testing for Taqelah Lab project",
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
     "test:smoke": "playwright test --project=smoke-*",
     "test:regression": "playwright test --project=regression-*",
     "test:mobile": "playwright test --project='Mobile*'",
@@ -17,7 +20,13 @@
     "test:shard:3": "playwright test --shard=3/3",
     "report": "playwright show-report"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "api-testing", 
+    "rest-api",
+    "network-mocking", 
+    "api-mocking", 
+    "interception"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
