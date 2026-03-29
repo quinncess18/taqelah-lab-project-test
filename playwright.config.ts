@@ -214,7 +214,7 @@ export default defineConfig({
     // 2. New API Project (Localhost)
     {
       name: 'api-local',
-      testDir: './tests/',
+      testDir: './tests/api-inventory/',
       use: {
         baseURL: 'http://localhost:8080',
         ...devices['Desktop Chrome'],
