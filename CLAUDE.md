@@ -94,6 +94,16 @@ All page classes live in `tests/pages/` and extend `BasePage` (which provides `n
 - Merges blob reports from shards into a single HTML report artifact
 - CI uses 1 worker and 2 retries; local uses 4 workers and 0 retries
 
+## Known Gotchas
+
+These are non-obvious issues already fixed — keep them in mind when editing the mobile spec or adding new screenshot tests.
+
+- **Cart state bleeds between tests** — the site restores `taqelahCart` from localStorage on login. `beforeEach` clears it with `localStorage.setItem('taqelahCart', '[]')` after login to ensure a clean state.
+- **Remove button has no `data-testid`** — use `getByText('Remove')`, not `getByTestId('remove-item')`.
+- **Add-to-cart toast doesn't auto-dismiss** — before any `page.screenshot()` call following an add-to-cart action, hide the toast with `page.evaluate(() => { const t = document.getElementById('toastMessage'); if (t?.parentElement) t.parentElement.style.display = 'none'; })`.
+- **Orientation change requires `page.setViewportSize()`** — `window.orientation` is read-only and dispatching `orientationchange` does not resize the Playwright viewport. Swap dimensions with `const vp = page.viewportSize(); await page.setViewportSize({ width: vp!.height, height: vp!.width })`.
+- **`.auth/` is gitignored** — the directory is generated locally by `global-setup.ts` on first run. Do not commit it. The old `/playwright/.auth/` entry in `.gitignore` did not cover the repo-root `.auth/` path; `/.auth/` has been added explicitly.
+
 ## Key Config Values
 
 - **Base URL**: `https://taqelah.sg`
