@@ -1,14 +1,14 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class ProductDetailsPage {
-  readonly page: Page;
+export class ProductDetailsPage extends BasePage {
   readonly productName: Locator;
   readonly productPrice: Locator;
   readonly productDescription: Locator;
   readonly addToCartButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.productName = page.getByTestId('product-details-title');
     this.productPrice = page.getByTestId('product-details-price');
     this.productDescription = page.getByTestId('product-details-description');

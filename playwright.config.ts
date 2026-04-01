@@ -38,7 +38,7 @@ export default defineConfig({
     ['list'],
     ['blob'],
     ['html', {
-      open: 'on-failure',  // 'always' | 'never' | 'on-failure'
+      open: 'always',  // 'always' | 'never' | 'on-failure'
     }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -51,7 +51,7 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     launchOptions: {
-      // slowMo: 3000, // Adds 3 seconds delay between actions
+      slowMo: 1000, // Adds 1 second delay between actions
       headless: false,
     },
   },
