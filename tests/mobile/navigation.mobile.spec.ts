@@ -7,13 +7,16 @@ test.describe('Mobile Navigation', () => {
     test.skip(!isMobile, 'This test is for mobile only');
 
     await page.goto('/taqelah-demo-site.html');
-    
+
     // Login
     await page.getByTestId('username-input').fill('ladies');
     await page.getByTestId('password-input').fill('ladies_GO');
     await page.getByTestId('login-button').tap();
 
     await expect(page.getByTestId('search-input')).toBeVisible();
+
+    // Clear cart after login so any server-restored cart state doesn't bleed into tests
+    await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
   });
 
   test('should open mobile filter menu', async ({ page }) => {
@@ -70,13 +73,19 @@ test.describe('Mobile Navigation', () => {
     await expect(cartItems).toBeVisible();
     await expect(cartItems.getByText('Maxi Dress')).toBeVisible();
 
+    // Dismiss add-to-cart toast before capturing cart state
+    await page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
+    });
+
+    // Take mobile screenshot of cart view
+    await page.screenshot({ path: 'screenshots/mobile-cart.png' });
+
     // Proceed to checkout
     const cartPage = new CartPage(page);
     await cartPage.checkoutButton.tap();
     await expect(page.getByTestId('checkout-form')).toBeVisible();
-
-    // Take mobile screenshot
-    await page.screenshot({ path: 'screenshots/mobile-cart.png' });
   });
 
   test('should allow cart operations (update quantity and remove items)', async ({ page }) => {
@@ -105,12 +114,16 @@ test.describe('Mobile Navigation', () => {
     const totalPrice = page.getByTestId('cart-total');
     await expect(totalPrice).toBeVisible();
 
+    // Dismiss add-to-cart toast before interacting with remove
+    await page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
+    });
+
     // Remove item from cart
-    const removeButton = cartItems.getByTestId('remove-item');
-    if (await removeButton.isVisible()) {
-      await removeButton.tap();
-      await expect(cartItems.getByText('Maxi Dress')).not.toBeVisible();
-    }
+    const removeButton = cartItems.getByText('Remove');
+    await removeButton.tap();
+    await expect(cartItems.getByText('Maxi Dress')).not.toBeVisible();
 
     // Take screenshot of empty cart
     await page.screenshot({ path: 'screenshots/mobile-cart-empty.png' });
@@ -131,14 +144,18 @@ test.describe('Mobile Navigation', () => {
     const cartItems = page.getByTestId('cart-items');
     await expect(cartItems).toBeVisible();
     await expect(cartItems.getByText('Maxi Dress')).toBeVisible();
+
+    // Dismiss add-to-cart toast before capturing layout
+    await page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
+    });
+
     await page.screenshot({ path: 'screenshots/mobile-cart-portrait.png' });
 
-    // Change to landscape orientation
-    await page.evaluate(() => {
-      window.orientation = 90;
-      window.dispatchEvent(new Event('orientationchange'));
-    });
-    await page.waitForTimeout(500); // Wait for layout adjustment
+    // Change to landscape orientation by swapping the viewport dimensions
+    const viewport = page.viewportSize();
+    await page.setViewportSize({ width: viewport!.height, height: viewport!.width });
 
     // Verify cart layout is still visible in landscape
     await expect(cartItems).toBeVisible();
