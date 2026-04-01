@@ -65,7 +65,7 @@ There are 16 test projects, split by purpose:
 
 `global-setup.ts` runs once before all non-API tests:
 - Launches Chromium, logs in using credentials from `test-data/users.json` at the demo site
-- Saves browser storage state to `.auth/taqelah-user.json`
+- Saves browser storage state to `.auth/` (gitignored — generated locally on first run)
 - Most test projects load this stored auth via `storageState`
 
 `global-teardown.ts` preserves the auth file for debugging (deletion is commented out).
