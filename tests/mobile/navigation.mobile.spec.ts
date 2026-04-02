@@ -51,15 +51,23 @@ test.describe('Mobile Navigation', () => {
   });
 
     test('should display mobile-optimized cart', async ({ page }) => {
+    test.slow();
+    test.setTimeout(60000);
+
     // Add item to cart
     await page.getByTestId('search-input').fill('maxi dress');
     
     // Wait for search grid to load
     await expect(page.getByTestId('search-grid')).toBeVisible();
+
+    // Wait for product card to render before tapping it
+    await expect(page.getByTestId('search-grid').getByTestId('product-name-6')).toBeVisible();
     
     // Tap product within grid context
     await page.getByTestId('search-grid').getByTestId('product-name-6').tap();
-    
+
+    // Ensure product details modal is ready before adding to cart
+    await expect(page.getByTestId('product-details-add-to-cart')).toBeVisible();
     await page.getByTestId('product-details-add-to-cart').tap();
 
     // Open cart

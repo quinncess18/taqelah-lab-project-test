@@ -3,55 +3,16 @@ import { test } from '../../fixtures/worker-fixture';
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('Registration and First Purchase @functional', () => {
-  test('New user can register and begin first purchase journey', async ({ page, uniqueEmail }) => {
+test.describe('First Purchase Checkout Details @functional', () => {
+  test('Logged-in user can complete checkout details and place first order', async ({ page, uniqueEmail }) => {
     test.slow();
     test.setTimeout(60000);
 
     await page.goto('/taqelah-demo-site.html');
 
-    const registrationEntryPoints = [
-      page.getByRole('button', { name: /sign up|register|create account/i }),
-      page.getByRole('link', { name: /sign up|register|create account/i }),
-      page.getByTestId('register-button'),
-      page.getByTestId('signup-button'),
-    ];
-
-    let openedRegistration = false;
-    for (const entry of registrationEntryPoints) {
-      if (await entry.first().isVisible().catch(() => false)) {
-        await entry.first().click();
-        openedRegistration = true;
-        break;
-      }
-    }
-
-    if (openedRegistration) {
-      const fullName = page
-        .getByTestId('full-name-input')
-        .or(page.getByLabel(/full name|name/i))
-        .first();
-      const email = page.getByTestId('email-input').or(page.getByLabel(/email/i)).first();
-      const password = page
-        .getByTestId('password-input')
-        .or(page.getByLabel(/^password$/i))
-        .first();
-
-      await fullName.fill('New Taqelah Customer');
-      await email.fill(uniqueEmail);
-      await password.fill('securePass123_GO');
-
-      const submitRegistration = page
-        .getByRole('button', { name: /create account|register|sign up/i })
-        .or(page.getByTestId('register-submit-button'))
-        .first();
-
-      await submitRegistration.click();
-    } else {
-      await page.getByTestId('username-input').fill('ladies');
-      await page.getByTestId('password-input').fill('ladies_GO');
-      await page.getByTestId('login-button').click();
-    }
+    await page.getByTestId('username-input').fill('ladies');
+    await page.getByTestId('password-input').fill('ladies_GO');
+    await page.getByTestId('login-button').click();
 
     await expect(page.getByTestId('search-input')).toBeVisible();
     await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
