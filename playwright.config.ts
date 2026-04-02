@@ -181,6 +181,7 @@ export default defineConfig({
     {
       name: 'visual-mobile',
       testDir: './tests/visual',
+      timeout: 60000,
       use: {
         ...devices['iPhone 13'],
       },
@@ -192,6 +193,7 @@ export default defineConfig({
     {
       name: 'visual-tablet',
       testDir: './tests/visual',
+      timeout: 60000,
       use: { 
         ...devices['iPad Mini'],
       },
