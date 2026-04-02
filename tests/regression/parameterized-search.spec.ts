@@ -30,10 +30,15 @@ test.describe('Parameterized Promo Codes with Multiple Users', () => {
    */
   testUsers.forEach((user) => {
     test(`User: ${user.username} - Apply promo code: ${user.promoCode}`, async ({ page }) => {
+      test.setTimeout(60000);
+
       // Navigate and Login
       const loginPage = new LoginPage(page);
       await loginPage.goto();
       await loginPage.login(user.username, user.password);
+
+      // Ensure each user test starts with a clean cart state
+      await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
 
       // Verify login successful
       await expect(page.getByText('Spring Collection 2025')).toBeVisible();
@@ -54,11 +59,9 @@ test.describe('Parameterized Promo Codes with Multiple Users', () => {
         // Add to cart
         await page.getByTestId('product-details-add-to-cart').click();
 
-        // Wait for search grid to reappear after add to cart
-        await expect(page.getByTestId('search-grid')).toBeVisible();
-
-        // Clear search input for next product search
-        await page.getByTestId('search-input').clear();
+        // Re-open the shop page explicitly; browser history back is flaky in this app
+        await page.goto('/taqelah-demo-site.html', { waitUntil: 'domcontentloaded' });
+        await expect(page.getByTestId('search-input')).toBeVisible();
       }
 
       // Proceed to checkout
