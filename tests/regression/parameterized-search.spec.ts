@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
 import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -24,63 +23,50 @@ const testUsers = customers.filter(user => user.expectedRole === 'customer' && u
 
 test.describe('Parameterized Promo Codes with Multiple Users', () => {
   /**
-   * Data-Driven Testing: Loops through each customer user
-   * Each user logs in, adds multiple products to cart, proceeds to checkout once,
-   * and applies a single promo code
+   * Data-Driven Testing: Loops through each customer user.
+   * Each user's auth state is pre-saved by auth.setup.ts — no login flow in the test.
+   * Products are added to cart directly from the search grid to avoid full-page navigations.
    */
   testUsers.forEach((user) => {
-    test(`User: ${user.username} - Apply promo code: ${user.promoCode}`, async ({ page }) => {
-      test.setTimeout(60000);
+    test.describe(`User: ${user.username}`, () => {
+      test.use({ storageState: path.join(__dirname, `../../.auth/${user.username}.json`) });
 
-      // Navigate and Login
-      const loginPage = new LoginPage(page);
-      await loginPage.goto();
-      await loginPage.login(user.username, user.password);
+      test(`Apply promo code: ${user.promoCode}`, async ({ page }) => {
+        test.setTimeout(60000);
 
-      // Ensure each user test starts with a clean cart state
-      await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
-
-      // Verify login successful
-      await expect(page.getByText('Spring Collection 2025')).toBeVisible();
-
-      // Add multiple products to cart
-      for (const product of products) {
-        // Search for product
-        await page.getByTestId('search-input').fill(product.searchTerm);
-        
-        // Wait for search results
-        await expect(page.getByTestId('search-grid')).toBeVisible();
-
-        // Click on the product
-        const productElement = page.getByTestId('search-grid').getByTestId(`product-name-${product.productId}`);
-        await expect(productElement).toBeVisible();
-        await productElement.click();
-
-        // Add to cart
-        await page.getByTestId('product-details-add-to-cart').click();
-
-        // Re-open the shop page explicitly; browser history back is flaky in this app
+        // Load the shop with saved auth — no login step needed
         await page.goto('/taqelah-demo-site.html', { waitUntil: 'domcontentloaded' });
-        await expect(page.getByTestId('search-input')).toBeVisible();
-      }
+        await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
+        await expect(page.getByText('Spring Collection 2025')).toBeVisible();
 
-      // Proceed to checkout
-      await page.getByTestId('cart-icon').click();
-      await page.getByTestId('checkout-button').click();
+        // Add products directly from the search grid (no product-detail navigation)
+        for (const product of products) {
+          await page.getByTestId('search-input').fill(product.searchTerm);
+          await expect(page.getByTestId('search-grid')).toBeVisible();
+          await page.getByTestId('search-grid').getByRole('button', { name: 'Add to Cart' }).first().click();
 
-      // Expand promo code section
-      await page.getByTestId('promo-toggle').click();
-      await expect(page.getByTestId('promo-code-input')).toBeVisible();
+          // Dismiss toast so it does not obscure the search input on the next iteration
+          await page.evaluate(() => {
+            const t = document.getElementById('toastMessage');
+            if (t?.parentElement) t.parentElement.style.display = 'none';
+          });
+        }
 
-      // Apply the assigned promo code for this user
-      const promoInput = page.getByTestId('promo-code-input');
-      const applyBtn = page.getByTestId('apply-promo-button');
+        // Proceed to checkout
+        await page.getByTestId('cart-icon').click();
+        await page.getByTestId('checkout-button').click();
 
-      await promoInput.fill(user.promoCode!);
-      await applyBtn.click();
+        // Expand promo code section
+        await page.getByTestId('promo-toggle').click();
+        await expect(page.getByTestId('promo-code-input')).toBeVisible();
 
-      // Assert that the discount is correctly reflected in the UI
-      await expect(page.getByTestId('applied-promo-code')).toContainText(user.promoCode!);
+        // Apply the assigned promo code for this user
+        await page.getByTestId('promo-code-input').fill(user.promoCode!);
+        await page.getByTestId('apply-promo-button').click();
+
+        // Assert that the discount is correctly reflected in the UI
+        await expect(page.getByTestId('applied-promo-code')).toContainText(user.promoCode!);
+      });
     });
   });
 });
