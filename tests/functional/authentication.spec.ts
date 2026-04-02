@@ -29,16 +29,15 @@ test.describe('Authentication Funnel', () => {
       });
     });
 
-    test('User session persists after navigation (Happy Path Persistence)', async ({ page }) => {
+    test('User session persists after app reload (Happy Path Persistence)', async ({ page }) => {
       const loginPage = new LoginPage(page);
       const user = testData[0];
       
       await loginPage.login(user.username, user.password);
       await expect(loginPage.logoutButton).toBeVisible();
 
-      // Navigate away and back
-      await page.goto('https://google.com');
-      await loginPage.goto();
+      // Reload the app on the same origin and verify the authenticated state remains.
+      await page.goto('/taqelah-demo-site.html', { waitUntil: 'domcontentloaded' });
 
       // Verify session is maintained
       await expect(loginPage.logoutButton).toBeVisible();
