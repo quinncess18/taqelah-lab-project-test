@@ -22,11 +22,12 @@
   },
   "keywords": [
     "playwright",
-    "api-testing", 
+    "api-testing",
     "rest-api",
-    "network-mocking", 
-    "api-mocking", 
-    "interception"],
+    "network-mocking",
+    "api-mocking",
+    "interception"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

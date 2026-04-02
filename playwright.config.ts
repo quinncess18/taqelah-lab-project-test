@@ -65,6 +65,7 @@ export default defineConfig({
     // Functional tests - run on all desktop browsers, excluding visual tests
     {
       name: 'main-desktop-chrome',
+      dependencies: ['setup'],
       testIgnore: '**/*.visual.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
@@ -72,6 +73,7 @@ export default defineConfig({
     },
     {
       name: 'main-desktop-firefox',
+      dependencies: ['setup'],
       timeout: 15000, // Shorter timeout for faster feedback on login/logout flows
       testIgnore: '**/*.visual.spec.ts', 
       use: {
@@ -81,6 +83,7 @@ export default defineConfig({
     },
     {
       name: 'main-desktop-safari',
+      dependencies: ['setup'],
       testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: {
         ...devices['Desktop Safari'],
