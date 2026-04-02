@@ -28,14 +28,19 @@ test.describe('Cart Management @functional', () => {
     const totalBefore = await cartPage.getCartTotal();
     await cartPage.updateQuantity('6', 2);
     await expect(cartPage.cartTotal).toBeVisible();
+    // Wait for total to reflect the quantity change
+    await page.waitForTimeout(500);
     const totalAfter = await cartPage.getCartTotal();
     expect(totalAfter).toBeGreaterThanOrEqual(totalBefore);
 
+    // Dismiss toast before removing item
     await page.evaluate(() => {
       const toast = document.getElementById('toastMessage');
       if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
     });
 
+    // Wait before attempting remove action
+    await page.waitForTimeout(300);
     await cartPage.removeItem('6');
     await expect(cartPage.cartItems.getByText('Maxi Dress')).not.toBeVisible();
     await expect(cartPage.cartItems.getByText('Wide Leg Pants')).toBeVisible();

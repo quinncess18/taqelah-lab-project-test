@@ -69,7 +69,10 @@ export class CartPage extends BasePage {
       return;
     }
 
-    await this.page.getByTestId(`cart-item-${productId}`).getByText('Remove').click();
+    // Fallback: find and click Remove button within the cart item, with explicit wait
+    const removeButton = this.page.getByTestId(`cart-item-${productId}`).getByText('Remove');
+    await removeButton.waitFor({ state: 'visible', timeout: 5000 });
+    await removeButton.click();
   }
 
   async updateQuantity(productId: string, amount: number) {
@@ -83,12 +86,16 @@ export class CartPage extends BasePage {
     if (delta > 0) {
       for (let i = 0; i < delta; i++) {
         await this.increaseQuantityButton(productId).click();
+        // Wait for value to update after each increment
+        await this.page.waitForTimeout(200);
       }
     }
 
     if (delta < 0) {
       for (let i = 0; i < Math.abs(delta); i++) {
         await this.decreaseQuantityButton(productId).click();
+        // Wait for value to update after each decrement
+        await this.page.waitForTimeout(200);
       }
     }
   }

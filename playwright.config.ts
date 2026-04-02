@@ -8,7 +8,7 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: {
       // Maximum allowed pixel difference
-      maxDiffPixelRatio: 0.05,
+      maxDiffPixelRatio: 0.02, // 2% difference allowed
       threshold: 0.1, // 10% difference allowed
       // Animation handling
       animations: 'disabled',
@@ -53,8 +53,8 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     launchOptions: {
-      slowMo: 1000, // Adds 1 second delay between actions
-      headless: false,
+      // slowMo: 1000, // Adds 1 second delay between actions
+      headless: true, // Run tests in headless mode for faster execution
     },
   },
   snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}-{platform}{ext}',
@@ -72,7 +72,7 @@ export default defineConfig({
     },
     {
       name: 'main-desktop-firefox',
-      timeout: 60000, // Reduced from 120s to 60s (1 minute is enough for 186 tests)
+      timeout: 15000, // Shorter timeout for faster feedback on login/logout flows
       testIgnore: '**/*.visual.spec.ts', 
       use: {
         ...devices['Desktop Firefox'],
