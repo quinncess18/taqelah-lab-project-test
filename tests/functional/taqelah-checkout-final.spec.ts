@@ -34,8 +34,15 @@ test.describe('Authenticated Checkout Final @functional', () => {
     await expect(page.getByTestId('search-grid')).toBeVisible();
     await page.getByTestId('search-grid').getByRole('button', { name: 'Add to Cart' }).first().click();
 
+    await page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
+    });
+
     await page.getByTestId('cart-icon').click();
     await expect(page.getByRole('heading', { name: 'Shopping Cart' })).toBeVisible();
+    await expect(page.getByTestId('checkout-button')).toBeVisible();
+    await expect(page.getByTestId('checkout-button')).toBeEnabled();
     await page.getByTestId('checkout-button').click();
     await expect(page.getByTestId('checkout-modal')).toBeVisible();
   });

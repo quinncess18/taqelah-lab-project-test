@@ -8,7 +8,7 @@ export class BasePage {
   }
 
   async navigateTo(path: string) {
-    await this.page.goto(path);
+    await this.page.goto(path, { waitUntil: 'domcontentloaded', timeout: 30000 });
   }
 
   async wait(ms: number) {

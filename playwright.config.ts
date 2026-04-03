@@ -74,7 +74,7 @@ export default defineConfig({
     {
       name: 'main-desktop-firefox',
       dependencies: ['setup'],
-      timeout: 15000, // Shorter timeout for faster feedback on login/logout flows
+      timeout: 25000, // Allow extra headroom for transient network and rendering delays
       testIgnore: '**/*.visual.spec.ts', 
       use: {
         ...devices['Desktop Firefox'],

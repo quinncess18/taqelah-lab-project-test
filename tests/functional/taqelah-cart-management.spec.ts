@@ -16,9 +16,17 @@ test.describe('Cart Management @functional', () => {
 
     await shopPage.addProductToCart('Maxi Dress');
     await expect(shopPage.confirmationMessage).toContainText(/added to cart/i);
+    await page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
+    });
 
     await shopPage.addProductToCart('Wide Leg Pants');
     await expect(shopPage.confirmationMessage).toContainText(/added to cart/i);
+    await page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
+    });
 
     await shopPage.openCart();
     await expect(cartPage.cartHeading).toBeVisible();

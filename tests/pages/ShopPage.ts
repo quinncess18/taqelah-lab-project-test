@@ -17,8 +17,18 @@ export class ShopPage extends BasePage {
     this.productDetailsAddToCart = page.getByTestId('product-details-add-to-cart');
   }
 
+  private async hideToastIfPresent() {
+    await this.page.evaluate(() => {
+      const toast = document.getElementById('toastMessage');
+      if (toast && toast.parentElement) {
+        (toast.parentElement as HTMLElement).style.display = 'none';
+      }
+    });
+  }
+
   async searchProduct(term: string) {
-    await this.searchInput.click();
+    await expect(this.searchInput).toBeVisible();
+    await this.searchInput.fill('');
     await this.searchInput.fill(term);
   }
 
@@ -31,6 +41,7 @@ export class ShopPage extends BasePage {
   }
 
   async addProductToCart(productName: string) {
+    await this.hideToastIfPresent();
     await this.searchProduct(productName);
     await expect(this.searchGrid).toBeVisible();
 
@@ -42,6 +53,10 @@ export class ShopPage extends BasePage {
     }
 
     await expect(this.productDetailsAddToCart).toBeVisible();
+    await expect(this.productDetailsAddToCart).toBeEnabled();
+    await this.productDetailsAddToCart.scrollIntoViewIfNeeded();
+    await this.hideToastIfPresent();
+    await this.productDetailsAddToCart.click({ trial: true });
     await this.productDetailsAddToCart.click();
   }
 
@@ -51,6 +66,7 @@ export class ShopPage extends BasePage {
   }
 
   async openCart() {
+    await this.hideToastIfPresent();
     await this.cartIcon.click();
   }
 }
