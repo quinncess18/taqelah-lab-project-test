@@ -6,6 +6,7 @@ export class ShopPage extends BasePage {
   readonly searchGrid: Locator;
   readonly confirmationMessage: Locator;
   readonly cartIcon: Locator;
+  readonly productDetailsTitle: Locator;
   readonly productDetailsAddToCart: Locator;
 
   constructor(page: Page) {
@@ -14,7 +15,8 @@ export class ShopPage extends BasePage {
     this.searchGrid = page.getByTestId('search-grid');
     this.confirmationMessage = page.getByTestId('toast-message');
     this.cartIcon = page.getByTestId('cart-icon');
-    this.productDetailsAddToCart = page.getByTestId('product-details-add-to-cart');
+    this.productDetailsTitle = page.locator('[data-testid="product-details-title"]:visible').first();
+    this.productDetailsAddToCart = page.locator('[data-testid="product-details-add-to-cart"]:visible').first();
   }
 
   private async hideToastIfPresent() {
@@ -52,6 +54,7 @@ export class ShopPage extends BasePage {
       await this.searchGrid.getByText(new RegExp(productName, 'i')).first().click();
     }
 
+    await expect(this.productDetailsTitle).toBeVisible();
     await expect(this.productDetailsAddToCart).toBeVisible();
     await expect(this.productDetailsAddToCart).toBeEnabled();
     await this.productDetailsAddToCart.scrollIntoViewIfNeeded();
