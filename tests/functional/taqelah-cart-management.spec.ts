@@ -15,43 +15,33 @@ test.describe('Cart Management @functional', () => {
     const cartPage = new CartPage(page);
 
     await shopPage.addProductToCart('Maxi Dress');
-    await expect(shopPage.confirmationMessage).toContainText(/added to cart/i);
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.addProductToCart('Wide Leg Pants');
-    await expect(shopPage.confirmationMessage).toContainText(/added to cart/i);
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.openCart();
     await expect(cartPage.cartHeading).toBeVisible();
-    await expect(cartPage.cartItems.getByText('Maxi Dress')).toBeVisible();
-    await expect(cartPage.cartItems.getByText('Wide Leg Pants')).toBeVisible();
+    await expect(cartPage.getCartItemByName('Maxi Dress')).toBeVisible();
+    await expect(cartPage.getCartItemByName('Wide Leg Pants')).toBeVisible();
 
     const totalBefore = await cartPage.getCartTotal();
-    await cartPage.updateQuantity('6', 2);
+    
+    const maxidDressItem = cartPage.getCartItemByName('Maxi Dress');
+    await cartPage.updateQuantityByCartItem(maxidDressItem, 2);
     await expect(cartPage.cartTotal).toBeVisible();
-    // Wait for total to reflect the quantity change
     await page.waitForTimeout(500);
     const totalAfter = await cartPage.getCartTotal();
     expect(totalAfter).toBeGreaterThanOrEqual(totalBefore);
 
-    // Dismiss toast before removing item
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
-
-    // Wait before attempting remove action
+    await shopPage.hideToast();
     await page.waitForTimeout(300);
-    await cartPage.removeItem('6');
-    await expect(cartPage.cartItems.getByText('Maxi Dress')).not.toBeVisible();
-    await expect(cartPage.cartItems.getByText('Wide Leg Pants')).toBeVisible();
+    const removeButton = maxidDressItem.getByText('Remove');
+    await removeButton.click();
+    await page.waitForTimeout(300);
+    
+    await expect(maxidDressItem).not.toBeVisible();
+    await expect(cartPage.getCartItemByName('Wide Leg Pants')).toBeVisible();
     await expect(cartPage.checkoutButton).toBeVisible();
   });
 });

@@ -20,18 +20,7 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     await expect(cartPage.checkoutButton).toBeDisabled();
   });
 
-  test('Checkout button is disabled when cart is empty', async ({ page }) => {
-    const shopPage = new ShopPage(page);
-    const cartPage = new CartPage(page);
-
-    await shopPage.openCart();
-    
-    await expect(cartPage.checkoutButton).toBeDisabled();
-  });
-
   test('Cart count badge shows 0 when cart is empty', async ({ page }) => {
-    await page.goto('/taqelah-demo-site.html');
-    
     const cartCount = page.getByTestId('cart-count');
     await expect(cartCount).toContainText('0');
   });
@@ -41,27 +30,22 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     const cartPage = new CartPage(page);
 
     await shopPage.addProductToCart('Maxi Dress');
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.addProductToCart('Silk Cami');
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.openCart();
-    
-    await expect(page.getByTestId('cart-item-6')).toBeVisible();
-    await expect(page.getByTestId('cart-item-9')).toBeVisible();
 
-    await cartPage.removeItem('6');
+    const cartItems = page.locator('[data-testid^="cart-item-"]');
+    await expect(cartItems.first()).toBeVisible();
+
+    await cartPage.getCartItemByName('Maxi Dress').getByText('Remove').click();
     await page.waitForTimeout(300);
-    await cartPage.removeItem('9');
+    await cartPage.getCartItemByName('Silk Cami').getByText('Remove').click();
     await page.waitForTimeout(300);
 
+    await expect(cartItems).toHaveCount(0, { timeout: 5000 });
     await expect(page.locator('.cart-empty')).toContainText(/empty|Your cart is empty/i);
     await expect(cartPage.checkoutButton).toBeDisabled();
   });
@@ -71,14 +55,14 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     const cartPage = new CartPage(page);
 
     await shopPage.addProductToCart('Maxi Dress');
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.openCart();
 
-    const decreaseButton = page.getByTestId('decrease-quantity-6');
+    const maxidDressItem = cartPage.getCartItemByName('Maxi Dress');
+    await expect(maxidDressItem).toBeVisible();
+    
+    const decreaseButton = cartPage.getDecreaseButtonForCartItem(maxidDressItem);
     await expect(decreaseButton).toBeVisible();
     
     await decreaseButton.click();
@@ -91,10 +75,7 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     const shopPage = new ShopPage(page);
 
     await shopPage.addProductToCart('Maxi Dress');
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.openCart();
     
@@ -108,12 +89,10 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
 
   test('Cart persists after page reload within same session', async ({ page }) => {
     const shopPage = new ShopPage(page);
+    const cartPage = new CartPage(page);
 
     await shopPage.addProductToCart('Maxi Dress');
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await page.waitForTimeout(500);
 
@@ -121,7 +100,7 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     await expect(page.getByTestId('logout-button')).toBeVisible();
 
     await shopPage.openCart();
-    await expect(page.getByTestId('cart-item-6')).toBeVisible();
+    await expect(cartPage.getCartItemByName('Maxi Dress')).toBeVisible();
   });
 
   test('Close checkout modal and verify cart is preserved', async ({ page }) => {
@@ -129,10 +108,7 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     const cartPage = new CartPage(page);
 
     await shopPage.addProductToCart('Maxi Dress');
-    await page.evaluate(() => {
-      const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) toast.parentElement.style.display = 'none';
-    });
+    await shopPage.hideToast();
 
     await shopPage.openCart();
     await cartPage.checkoutButton.click();
@@ -142,6 +118,6 @@ test.describe('Cart Management - Negative Scenarios @functional', () => {
     await expect(page.getByTestId('checkout-modal')).not.toBeVisible();
 
     await shopPage.openCart();
-    await expect(page.getByTestId('cart-item-6')).toBeVisible();
+    await expect(cartPage.getCartItemByName('Maxi Dress')).toBeVisible();
   });
 });

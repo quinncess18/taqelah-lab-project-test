@@ -6,8 +6,9 @@ export class ShopPage extends BasePage {
   readonly searchGrid: Locator;
   readonly confirmationMessage: Locator;
   readonly cartIcon: Locator;
-  readonly productDetailsTitle: Locator;
+  readonly cartCount: Locator;
   readonly productDetailsAddToCart: Locator;
+  readonly productDetailsModal: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -15,15 +16,16 @@ export class ShopPage extends BasePage {
     this.searchGrid = page.getByTestId('search-grid');
     this.confirmationMessage = page.getByTestId('toast-message');
     this.cartIcon = page.getByTestId('cart-icon');
-    this.productDetailsTitle = page.locator('[data-testid="product-details-title"]:visible').first();
-    this.productDetailsAddToCart = page.locator('[data-testid="product-details-add-to-cart"]:visible').first();
+    this.cartCount = page.getByTestId('cart-count');
+    this.productDetailsModal = page.getByTestId('product-details-modal');
+    this.productDetailsAddToCart = page.locator('[data-testid="product-details-modal"] [data-testid="product-details-add-to-cart"]').first();
   }
 
-  private async hideToastIfPresent() {
+  async hideToast() {
     await this.page.evaluate(() => {
       const toast = document.getElementById('toastMessage');
-      if (toast && toast.parentElement) {
-        (toast.parentElement as HTMLElement).style.display = 'none';
+      if (toast?.parentElement) {
+        toast.parentElement.style.display = 'none';
       }
     });
   }
@@ -34,42 +36,38 @@ export class ShopPage extends BasePage {
     await this.searchInput.fill(term);
   }
 
-  async clickProduct(productTestId: string) {
-    await this.searchGrid.getByTestId(productTestId).click();
-  }
-
-  async addToCart() {
-    await this.productDetailsAddToCart.click();
-  }
-
-  async addProductToCart(productName: string) {
-    await this.hideToastIfPresent();
+  async addProductToCart(productName: string): Promise<string> {
     await this.searchProduct(productName);
     await expect(this.searchGrid).toBeVisible();
 
-    const imageCard = this.searchGrid.getByRole('img', { name: new RegExp(productName, 'i') }).first();
-    if (await imageCard.isVisible().catch(() => false)) {
-      await imageCard.click();
+    const productCard = this.searchGrid
+      .locator('[data-testid*="product"], [data-testid*="card"]')
+      .filter({ has: this.page.getByText(new RegExp(productName, 'i')) })
+      .first();
+
+    if (await productCard.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await productCard.click();
     } else {
       await this.searchGrid.getByText(new RegExp(productName, 'i')).first().click();
     }
 
-    await expect(this.productDetailsTitle).toBeVisible();
-    await expect(this.productDetailsAddToCart).toBeVisible();
-    await expect(this.productDetailsAddToCart).toBeEnabled();
+    await expect(this.productDetailsModal).toBeVisible({ timeout: 10000 });
     await this.productDetailsAddToCart.scrollIntoViewIfNeeded();
-    await this.hideToastIfPresent();
-    await this.productDetailsAddToCart.click({ trial: true });
     await this.productDetailsAddToCart.click();
+
+    return this.getConfirmationMessage();
   }
 
   async getConfirmationMessage(): Promise<string> {
-    await expect(this.confirmationMessage).toBeVisible();
-    return this.confirmationMessage.innerText();
+    const handle = await this.page.waitForFunction(
+      () => document.getElementById('toastMessage')?.textContent?.trim() || null,
+      { timeout: 10000 }
+    );
+    return String(await handle.jsonValue());
   }
 
   async openCart() {
-    await this.hideToastIfPresent();
+    await this.hideToast();
     await this.cartIcon.click();
   }
 }

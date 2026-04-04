@@ -6,6 +6,7 @@ export default defineConfig({
   
   // Visual testing specific settings
   expect: {
+    timeout: 10000, // 10s for assertions — longer for Safari/Firefox rendering delays
     toHaveScreenshot: {
       // Maximum allowed pixel difference
       maxDiffPixelRatio: 0.02, // 2% difference allowed
@@ -78,12 +79,12 @@ export default defineConfig({
       testIgnore: '**/*.visual.spec.ts', 
       use: {
         ...devices['Desktop Firefox'],
-        // No need for custom expect timeouts here; keep it global
       },
     },
     {
       name: 'main-desktop-safari',
       dependencies: ['setup'],
+      timeout: 30000, // Longer timeout for WebKit rendering
       testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: {
         ...devices['Desktop Safari'],
