@@ -76,5 +76,62 @@ test.describe('Authentication Funnel', () => {
       await expect(page.locator('text=Username must be exactly 6 letters')).toBeVisible();
       await expect(loginPage.logoutButton).not.toBeVisible();
     });
+
+    test('User cannot login with empty username field', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+
+      await loginPage.usernameInput.fill('');
+      await loginPage.passwordInput.fill('anypassword');
+      await loginPage.loginButton.click();
+
+      await expect(page.locator('text=Username must be exactly 6 letters')).toBeVisible();
+      await expect(loginPage.logoutButton).not.toBeVisible();
+    });
+
+    test('User cannot login with empty password field', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+
+      await loginPage.usernameInput.fill('ladies');
+      await loginPage.passwordInput.fill('');
+      await loginPage.loginButton.click();
+
+      await expect(page.locator('text=Password must be username_GO')).toBeVisible();
+      await expect(loginPage.logoutButton).not.toBeVisible();
+    });
+
+    test('User cannot login with both username and password empty', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+
+      await loginPage.usernameInput.fill('');
+      await loginPage.passwordInput.fill('');
+      await loginPage.loginButton.click();
+
+      await expect(page.locator('text=Username must be exactly 6 letters')).toBeVisible();
+      await expect(loginPage.logoutButton).not.toBeVisible();
+    });
+
+    test('Guest user cannot login with correct credentials (guest role restriction)', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+
+      await loginPage.usernameInput.fill(guestUser!.username);
+      await loginPage.passwordInput.fill(guestUser!.password);
+      await loginPage.loginButton.click();
+
+      await expect(page.locator('text=Username must be exactly 6 letters')).toBeVisible();
+      await expect(loginPage.logoutButton).not.toBeVisible();
+    });
+
+    test('Username character counter shows correct count', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+
+      await loginPage.usernameInput.fill('abc');
+      await expect(page.getByTestId('char-counter')).toContainText('3/6 characters');
+
+      await loginPage.usernameInput.fill('abcdef');
+      await expect(page.getByTestId('char-counter')).toContainText('6/6 characters');
+
+      await loginPage.usernameInput.fill('abcd');
+      await expect(page.getByTestId('char-counter')).toContainText('4/6 characters');
+    });
   });
 });

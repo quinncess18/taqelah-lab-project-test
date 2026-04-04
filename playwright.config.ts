@@ -147,7 +147,6 @@ export default defineConfig({
     },
     {
       name: 'production',
-      testMatch: /.*\.smoke\.spec\.ts/,
       testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: {
       ...devices['Desktop Chrome'],
