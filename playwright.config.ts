@@ -66,7 +66,6 @@ export default defineConfig({
     // Functional tests - run on all desktop browsers, excluding visual tests
     {
       name: 'main-desktop-chrome',
-      dependencies: ['setup'],
       testIgnore: '**/*.visual.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
@@ -74,16 +73,14 @@ export default defineConfig({
     },
     {
       name: 'main-desktop-firefox',
-      dependencies: ['setup'],
       timeout: 25000, // Allow extra headroom for transient network and rendering delays
-      testIgnore: '**/*.visual.spec.ts', 
+      testIgnore: '**/*.visual.spec.ts',
       use: {
         ...devices['Desktop Firefox'],
       },
     },
     {
       name: 'main-desktop-safari',
-      dependencies: ['setup'],
       timeout: 30000, // Longer timeout for WebKit rendering
       testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: {
@@ -99,7 +96,6 @@ export default defineConfig({
         ...devices['iPhone 13'],
       },
       fullyParallel: false,
-      dependencies: ['setup'],
     },
     {
       name: 'mobile-chrome',
@@ -108,13 +104,6 @@ export default defineConfig({
         ...devices['Pixel 5'],
       },
       fullyParallel: false,
-      dependencies: ['setup'],
-    },
-
-    // Setup tests - run once before all other tests
-    {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
     },
 
      // Smoke tests - run on all browsers
@@ -160,7 +149,6 @@ export default defineConfig({
       name: 'regression',
       testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
       use: { ...devices['Desktop Chrome'] },
-      dependencies: ['setup'],
     },
 
     // Visual testing - run on a single browser with specific settings for stable screenshots

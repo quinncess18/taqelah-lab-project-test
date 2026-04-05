@@ -24,20 +24,21 @@ const testUsers = customers.filter(user => user.expectedRole === 'customer' && u
 test.describe('Parameterized Promo Codes with Multiple Users', () => {
   /**
    * Data-Driven Testing: Loops through each customer user.
-   * Each user's auth state is pre-saved by auth.setup.ts — no login flow in the test.
+   * Each user logs in directly — no pre-saved auth state required.
    * Products are added to cart directly from the search grid to avoid full-page navigations.
    */
   testUsers.forEach((user) => {
     test.describe(`User: ${user.username}`, () => {
-      test.use({ storageState: path.join(__dirname, `../../.auth/${user.username}.json`) });
-
       test(`Apply promo code: ${user.promoCode}`, async ({ page }) => {
         test.setTimeout(60000);
 
-        // Load the shop with saved auth — no login step needed
+        // Login as this user
         await page.goto('/taqelah-demo-site.html', { waitUntil: 'domcontentloaded' });
-        await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
+        await page.getByTestId('username-input').fill(user.username);
+        await page.getByTestId('password-input').fill(user.password);
+        await page.getByTestId('login-button').click();
         await expect(page.getByText('Spring Collection 2025')).toBeVisible();
+        await page.evaluate(() => localStorage.setItem('taqelahCart', '[]'));
 
         // Add products directly from the search grid (no product-detail navigation)
         for (const product of products) {

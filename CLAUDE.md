@@ -56,7 +56,7 @@ There are 16 test projects, split by purpose:
 | `main-desktop-*` | All specs | Chrome/Firefox/Safari desktop |
 | `mobile-safari`, `mobile-chrome` | `mobile/**` | iPhone 13 / Pixel 5 emulation |
 | `smoke-*` | `smoke/**` | Fast critical-path checks |
-| `regression` | `regression/**` | Full workflow tests (Chromium only) |
+| `regression` | `regression/**` | Single E2E happy-path flow (Chromium only) |
 | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `visual/**` | Screenshot comparison |
 | `api-local` | `api-inventory/**` | Hits `localhost:8080`, runs **serially** (1 worker) |
 | `api-mocking` | `api-mocking/**` | Network interception tests |
@@ -103,8 +103,7 @@ These are non-obvious issues already fixed — keep them in mind when editing th
 - **Add-to-cart toast doesn't auto-dismiss** — before any `page.screenshot()` call following an add-to-cart action, hide the toast with `page.evaluate(() => { const t = document.getElementById('toastMessage'); if (t?.parentElement) t.parentElement.style.display = 'none'; })`.
 - **Orientation change requires `page.setViewportSize()`** — `window.orientation` is read-only and dispatching `orientationchange` does not resize the Playwright viewport. Swap dimensions with `const vp = page.viewportSize(); await page.setViewportSize({ width: vp!.height, height: vp!.width })`.
 - **`.auth/` is gitignored** — the directory is generated locally by `global-setup.ts` on first run. Do not commit it. The old `/playwright/.auth/` entry in `.gitignore` did not cover the repo-root `.auth/` path; `/.auth/` has been added explicitly.
-- **`main-desktop-*` projects must declare `dependencies: ['setup']`** — without this, Chrome/Firefox/Safari projects can run before `global-setup.ts` completes in CI, causing auth failures. All three desktop projects now include `dependencies: ['setup']` in `playwright.config.ts`.
-- **`staging` and `production` projects have no `dependencies: ['setup']`** — they rely on `.auth/taqelah-user.json` created by `globalSetup`, which always runs before any test project. Do not add per-user auth file references (e.g. `ladies.json`) to these projects without also adding the dependency.
+- **`staging` and `production` projects have no setup dependency** — they rely on `.auth/taqelah-user.json` created by `globalSetup`, which always runs before any test project.
 - **Cart does not merge duplicate product rows** — adding the same product twice creates two separate cart rows, not one row with quantity 2. Do not write tests that assert `toHaveCount(1)` after adding the same item twice.
 - **Cart count badge does not reflect total quantity** — the badge tracks by a metric other than cumulative item count (e.g. unique SKUs or a separate counter). Assertions like `expect(count).toBeGreaterThanOrEqual(2)` after adding two different products will fail.
 - **`staging`/`production` projects pick up all specs** — neither has a `testDir` restriction, so they run every spec under `tests/` except visual. This is intentional for environment-level cross-checks but means new spec files are automatically included in both environment runs.
@@ -114,7 +113,7 @@ These are non-obvious issues already fixed — keep them in mind when editing th
 - **Mobile E2E serial steps each carry `test.skip(!isMobile)`** — `checkout.mobile.spec.ts` uses a shared `page` variable across steps. Because `staging`/`production` projects pick up `tests/mobile/` files, each step guards against non-mobile execution with `test.skip(!isMobile, 'Mobile E2E only')`. If step 1 is skipped, all subsequent steps are also skipped since the shared `page` is never initialised.
 - **Product details modal backdrop causes dim screenshots** — after tapping add-to-cart on mobile, the modal overlay lingers. Always wait with `await expect(page.getByTestId('product-details-modal')).not.toBeVisible()` before opening the cart or taking any screenshot, or the background will appear dimmed.
 - **`search-grid` stays visible even when a search returns no results** — the element renders a "No Results Found" message but remains in the DOM. Asserting `expect(page.getByTestId('search-grid')).toBeVisible()` alone is insufficient to confirm results were found; scope assertions to `.product-card` elements inside the grid (`search-grid.locator('.product-card')`) or check for `No Results Found` text.
-- **Firefox filter-category tests no longer skipped** — the `test.skip(browserName === 'firefox', ...)` guard on the "New In" and "Sale" category filter tests in `tests/regression/search.spec.ts` was removed after confirming the tests pass on Firefox. Do not re-add a Firefox skip for these without reproducing the failure first.
+- **Firefox filter-category tests no longer skipped** — the `test.skip(browserName === 'firefox', ...)` guard on the "New In" and "Sale" category filter tests in `tests/functional/search.spec.ts` was removed after confirming the tests pass on Firefox. Do not re-add a Firefox skip for these without reproducing the failure first.
 - **Cart slide-in animation must settle before portrait screenshots** — even after cart content is visible, the panel may still be mid-animation. Add `await page.waitForTimeout(400)` after hiding the toast and before `page.screenshot()` to let the animation complete.
 
 ## Key Config Values

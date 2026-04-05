@@ -15,6 +15,8 @@ Updated progressively as each area is reviewed and gap-analyzed.
 | Area | Suite / Project | Spec Files | Scenarios | Status |
 |---|---|---|---|---|
 | [Functional — Auth](#functional--authentication) | `main-desktop-*`, `staging`, `production` | `authentication.spec.ts` | 11 | ✅ |
+| [Functional — Search](#functional--search) | `main-desktop-*`, `staging`, `production` | `search.spec.ts` | 6 | ✅ |
+| [Functional — Promo Codes (Parameterized)](#functional--promo-codes-parameterized) | `main-desktop-*`, `staging`, `production` | `parameterized-search.spec.ts` | 4 | ✅ |
 | [Functional — Cart (happy)](#functional--cart-happy-path) | `main-desktop-*`, `staging`, `production` | `taqelah-cart-management.spec.ts` | 1 | ✅ |
 | [Functional — Cart (negative)](#functional--cart-negative) | `main-desktop-*`, `staging`, `production` | `cart-negative.spec.ts` | 7 | ✅ |
 | [Functional — Checkout (happy)](#functional--checkout-happy-path) | `main-desktop-*`, `staging`, `production` | `taqelah-checkout-final.spec.ts`, `taqelah-first-purchase-checkout.spec.ts` | 4 | ✅ |
@@ -23,8 +25,7 @@ Updated progressively as each area is reviewed and gap-analyzed.
 | [Mobile — Negative](#mobile--negative-scenarios) | `mobile-chrome`, `mobile-safari` | `negative.mobile.spec.ts` | 6 | ✅ |
 | [Mobile — E2E Checkout](#mobile--e2e-checkout-flow) | `mobile-chrome`, `mobile-safari` | `checkout.mobile.spec.ts` | 5 | ✅ |
 | [Smoke](#smoke) | `smoke-chromium`, `smoke-firefox`, `smoke-webkit` | `login.smoke.spec.ts` | 3 | ✅ |
-| [Regression — Search](#regression--search) | `regression` | `search.spec.ts`, `parameterized-search.spec.ts` | 10 | ✅ |
-| [Regression — Checkout](#regression--checkout) | `regression` | `checkout.spec.ts` | 4 | ✅ |
+| [Regression — E2E Happy Path](#regression--e2e-happy-path) | `regression` | `e2e-happy-path.spec.ts` | 8 | ✅ |
 | [Visual — Homepage](#visual--homepage) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `homepage.visual.spec.ts` | 3 | 🔵 |
 | [Visual — Products](#visual--products) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `products.visual.spec.ts` | 4 | 🔵 |
 | [Visual — Advanced](#visual--advanced) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `advanced.visual.spec.ts` | 5 | 🔵 |
@@ -55,6 +56,36 @@ Updated progressively as each area is reviewed and gap-analyzed.
 | 9 | Guest user cannot login with correct credentials (role restriction) | Negative | ✅ |
 | 10 | User session is invalidated after logout | Negative | ✅ |
 | 11 | Username character counter shows correct count | Edge case | ✅ |
+
+---
+
+## Functional — Search
+
+**File:** `tests/functional/search.spec.ts`
+**Projects:** `main-desktop-chrome`, `main-desktop-firefox`, `main-desktop-safari`, `staging`, `production`
+
+| # | Scenario | Type | Status |
+|---|---|---|---|
+| 1 | Search for dresses returns results | Happy path | ✅ |
+| 2 | Search for tops returns results | Happy path | ✅ |
+| 3 | Search for accessories returns results | Happy path | ✅ |
+| 4 | Search with unmatched term shows "No Results Found" and zero product cards | Negative | ✅ |
+| 5 | Filter by category — New In | Happy path | ✅ |
+| 6 | Filter by category — Sale | Happy path | ✅ |
+
+---
+
+## Functional — Promo Codes (Parameterized)
+
+**File:** `tests/functional/parameterized-search.spec.ts`
+**Projects:** `main-desktop-chrome`, `main-desktop-firefox`, `main-desktop-safari`, `staging`, `production`
+
+| # | Scenario | Type | Status |
+|---|---|---|---|
+| 1 | User: ladies — Apply promo code SAVE10 | Happy path | ✅ |
+| 2 | User: autumn — Apply promo code WELCOME20 | Happy path | ✅ |
+| 3 | User: spring — Apply promo code FREESHIP | Happy path | ✅ |
+| 4 | User: winter — Apply promo code SAVE10 | Happy path | ✅ |
 
 ---
 
@@ -191,34 +222,23 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 ---
 
-## Regression — Search
+## Regression — E2E Happy Path
 
-**Files:** `tests/regression/search.spec.ts`, `tests/regression/parameterized-search.spec.ts`
+**File:** `tests/regression/e2e-happy-path.spec.ts`
 **Project:** `regression`
+**Mode:** Serial — shared page instance across all steps
+**User:** `autumn` | **Product:** Trench Coat | **Promo:** `WELCOME20` (20% off)
 
-| # | Scenario | File | Status |
+| # | Step | Assertion | Status |
 |---|---|---|---|
-| 1 | Search for dresses returns results | `search.spec.ts` | ✅ |
-| 2 | Search for tops returns results | `search.spec.ts` | ✅ |
-| 3 | Search for accessories returns results | `search.spec.ts` | ✅ |
-| 4 | Filter by category — New In | `search.spec.ts` | ✅ |
-| 5 | Filter by category — Sale | `search.spec.ts` | ✅ |
-| 6 | Search with unmatched term shows "No Results Found" and zero product cards | `search.spec.ts` | ✅ |
-| 7–10 | Apply promo code per customer user (data-driven: ladies, autumn, spring, winter) | `parameterized-search.spec.ts` | ✅ |
-
----
-
-## Regression — Checkout
-
-**File:** `tests/regression/checkout.spec.ts`
-**Project:** `regression`
-
-| # | Scenario | Status |
-|---|---|---|
-| 1 | Step 1 — Login and search for product | ✅ |
-| 2 | Step 2 — Add product to cart | ✅ |
-| 3 | Step 3 — Proceed to checkout | ✅ |
-| 4 | Step 4 — Fill checkout form with promo code (stops at form; order placement covered in functional suite) | ✅ |
+| 1 | Login as `autumn` | Shop page visible, logout button present | ✅ |
+| 2 | Search for "trench coat" | Search grid visible with at least one product card | ✅ |
+| 3 | Click product → details modal opens | Modal visible and contains "Trench Coat" | ✅ |
+| 4 | Add to cart from modal | Toast notification visible; modal closes | ✅ |
+| 5 | Open cart | Trench Coat item present; cart total visible | ✅ |
+| 6 | Click checkout button | Button visible, enabled, labelled "Checkout"; modal opens | ✅ |
+| 7 | Apply WELCOME20, fill shipping form | Discount shows 20%; place order button visible and enabled | ✅ |
+| 8 | Place order | Order confirmation and order number visible | ✅ |
 
 ---
 
