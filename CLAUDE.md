@@ -54,7 +54,7 @@ There are 16 test projects, split by purpose:
 | Project | Match Pattern | Notes |
 |---|---|---|
 | `main-desktop-*` | All specs | Chrome/Firefox/Safari desktop |
-| `mobile-safari`, `mobile-chrome` | All specs | iPhone 13 / Pixel 5 emulation |
+| `mobile-safari`, `mobile-chrome` | `mobile/**` | iPhone 13 / Pixel 5 emulation |
 | `smoke-*` | `smoke/**` | Fast critical-path checks |
 | `regression` | `regression/**` | Full workflow tests (Chromium only) |
 | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `visual/**` | Screenshot comparison |
@@ -108,7 +108,12 @@ These are non-obvious issues already fixed — keep them in mind when editing th
 - **Cart does not merge duplicate product rows** — adding the same product twice creates two separate cart rows, not one row with quantity 2. Do not write tests that assert `toHaveCount(1)` after adding the same item twice.
 - **Cart count badge does not reflect total quantity** — the badge tracks by a metric other than cumulative item count (e.g. unique SKUs or a separate counter). Assertions like `expect(count).toBeGreaterThanOrEqual(2)` after adding two different products will fail.
 - **`staging`/`production` projects pick up all specs** — neither has a `testDir` restriction, so they run every spec under `tests/` except visual. This is intentional for environment-level cross-checks but means new spec files are automatically included in both environment runs.
-- **HTML report requires `npm run report` to open** — `open: 'always'` in the reporter config does not reliably launch a browser in shell-based environments. Run `npm run report` (or `npx playwright show-report`) to serve the report at `http://localhost:9323`.
+- **HTML report requires `npm run report` to open** — `open: 'always'` in the reporter config does not reliably launch a browser in shell-based environments. Run `npm run report` (or `npx playwright show-report`) to serve the report at `http://localhost:9323`. If port 9323 is already in use, pass `--port <number>` to use a different one.
+- **Mobile tests are split across three files by intent** — `navigation.mobile.spec.ts` (happy-path, portrait + landscape), `negative.mobile.spec.ts` (negative/edge cases, portrait + landscape), `checkout.mobile.spec.ts` (serial E2E full checkout flow). All three live in `tests/mobile/`.
+- **Mobile auth uses storageState, not manual login** — `navigation.mobile.spec.ts` and `negative.mobile.spec.ts` use `test.use({ storageState: '.auth/taqelah-user.json' })` at file level; `beforeEach` only navigates and clears the cart. `checkout.mobile.spec.ts` creates its context via `browser.newContext({ storageState })` in `beforeAll` to share a single page across serial steps.
+- **Mobile E2E serial steps each carry `test.skip(!isMobile)`** — `checkout.mobile.spec.ts` uses a shared `page` variable across steps. Because `staging`/`production` projects pick up `tests/mobile/` files, each step guards against non-mobile execution with `test.skip(!isMobile, 'Mobile E2E only')`. If step 1 is skipped, all subsequent steps are also skipped since the shared `page` is never initialised.
+- **Product details modal backdrop causes dim screenshots** — after tapping add-to-cart on mobile, the modal overlay lingers. Always wait with `await expect(page.getByTestId('product-details-modal')).not.toBeVisible()` before opening the cart or taking any screenshot, or the background will appear dimmed.
+- **Cart slide-in animation must settle before portrait screenshots** — even after cart content is visible, the panel may still be mid-animation. Add `await page.waitForTimeout(400)` after hiding the toast and before `page.screenshot()` to let the animation complete.
 
 ## Key Config Values
 
