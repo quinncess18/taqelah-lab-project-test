@@ -121,6 +121,21 @@ test.describe('Authentication Funnel', () => {
       await expect(loginPage.logoutButton).not.toBeVisible();
     });
 
+    test('User session is invalidated after logout', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+      const user = testData[0];
+
+      await loginPage.login(user.username, user.password);
+      await expect(loginPage.logoutButton).toBeVisible();
+
+      await loginPage.logoutButton.click();
+      await expect(page.locator('#loginPage')).toBeVisible();
+
+      await page.goto('/taqelah-demo-site.html', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('#loginPage')).toBeVisible();
+      await expect(loginPage.logoutButton).not.toBeVisible();
+    });
+
     test('Username character counter shows correct count', async ({ page }) => {
       const loginPage = new LoginPage(page);
 

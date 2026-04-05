@@ -103,6 +103,12 @@ These are non-obvious issues already fixed — keep them in mind when editing th
 - **Add-to-cart toast doesn't auto-dismiss** — before any `page.screenshot()` call following an add-to-cart action, hide the toast with `page.evaluate(() => { const t = document.getElementById('toastMessage'); if (t?.parentElement) t.parentElement.style.display = 'none'; })`.
 - **Orientation change requires `page.setViewportSize()`** — `window.orientation` is read-only and dispatching `orientationchange` does not resize the Playwright viewport. Swap dimensions with `const vp = page.viewportSize(); await page.setViewportSize({ width: vp!.height, height: vp!.width })`.
 - **`.auth/` is gitignored** — the directory is generated locally by `global-setup.ts` on first run. Do not commit it. The old `/playwright/.auth/` entry in `.gitignore` did not cover the repo-root `.auth/` path; `/.auth/` has been added explicitly.
+- **`main-desktop-*` projects must declare `dependencies: ['setup']`** — without this, Chrome/Firefox/Safari projects can run before `global-setup.ts` completes in CI, causing auth failures. All three desktop projects now include `dependencies: ['setup']` in `playwright.config.ts`.
+- **`staging` and `production` projects have no `dependencies: ['setup']`** — they rely on `.auth/taqelah-user.json` created by `globalSetup`, which always runs before any test project. Do not add per-user auth file references (e.g. `ladies.json`) to these projects without also adding the dependency.
+- **Cart does not merge duplicate product rows** — adding the same product twice creates two separate cart rows, not one row with quantity 2. Do not write tests that assert `toHaveCount(1)` after adding the same item twice.
+- **Cart count badge does not reflect total quantity** — the badge tracks by a metric other than cumulative item count (e.g. unique SKUs or a separate counter). Assertions like `expect(count).toBeGreaterThanOrEqual(2)` after adding two different products will fail.
+- **`staging`/`production` projects pick up all specs** — neither has a `testDir` restriction, so they run every spec under `tests/` except visual. This is intentional for environment-level cross-checks but means new spec files are automatically included in both environment runs.
+- **HTML report requires `npm run report` to open** — `open: 'always'` in the reporter config does not reliably launch a browser in shell-based environments. Run `npm run report` (or `npx playwright show-report`) to serve the report at `http://localhost:9323`.
 
 ## Key Config Values
 

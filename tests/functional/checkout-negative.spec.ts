@@ -203,6 +203,50 @@ test.describe('Checkout - Negative Scenarios @functional', () => {
     }
   });
 
+  test('Applying empty promo code does not apply a discount', async () => {
+    await page.getByTestId('search-input').fill('maxi dress');
+    await expect(page.getByTestId('search-grid')).toBeVisible();
+    await page.getByTestId('search-grid').getByRole('button', { name: 'Add to Cart' }).first().click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId('cart-icon').click();
+    await page.getByTestId('checkout-button').click();
+    await expect(page.getByTestId('checkout-modal')).toBeVisible();
+
+    await page.getByTestId('promo-toggle').click();
+    await expect(page.getByTestId('promo-code-input')).toBeVisible();
+    await page.getByTestId('apply-promo-button').click();
+
+    await expect(page.getByTestId('applied-promo-code')).not.toBeVisible();
+  });
+
+  test('Submit checkout form with address fields empty shows validation errors', async () => {
+    await page.getByTestId('search-input').fill('maxi dress');
+    await expect(page.getByTestId('search-grid')).toBeVisible();
+    await page.getByTestId('search-grid').getByRole('button', { name: 'Add to Cart' }).first().click();
+    await page.waitForTimeout(500);
+
+    await page.getByTestId('cart-icon').click();
+    await page.getByTestId('checkout-button').click();
+    await expect(page.getByTestId('checkout-modal')).toBeVisible();
+
+    await page.getByTestId('full-name-input').fill('Test User');
+    await page.getByTestId('email-input').fill('test@example.com');
+    await page.getByTestId('phone-input').fill('+6581234567');
+    // leave address1, city, postal empty
+    await page.getByTestId('country-select').selectOption('Singapore');
+
+    await page.getByTestId('place-order-button').click();
+
+    const address1Error = page.locator('#address1Error');
+    const cityError = page.locator('#cityError');
+    const postalError = page.locator('#postalError');
+
+    const anyAddressError = address1Error.or(cityError).or(postalError).first();
+    await expect(anyAddressError).toBeVisible();
+    await expect(page.getByTestId('order-confirmation')).not.toBeVisible();
+  });
+
   test('Submit checkout form with all required fields empty shows multiple validation errors', async () => {
     await page.getByTestId('search-input').fill('maxi dress');
     await expect(page.getByTestId('search-grid')).toBeVisible();
