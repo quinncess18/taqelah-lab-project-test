@@ -35,6 +35,7 @@ test.describe('Product Search - Parallel Safe', () => {
     const productGrid = page.getByTestId('search-grid');
     await productGrid.scrollIntoViewIfNeeded();
     await expect(productGrid).toBeVisible();
+    await expect(productGrid.locator('.product-card').first()).toBeVisible();
   });
 
   test('search for accessories', async ({ page }) => {
@@ -43,24 +44,29 @@ test.describe('Product Search - Parallel Safe', () => {
     const productGrid = page.getByTestId('search-grid');
     await productGrid.scrollIntoViewIfNeeded();
     await expect(productGrid).toBeVisible();
+    await expect(productGrid.locator('.product-card').first()).toBeVisible();
   });
 
-  test('filter by category - New In', async ({ page, browserName }) => {
-    // Skip only for Firefox because its engine really struggles with this site's filters
-    test.skip(browserName === 'firefox', 'Firefox rendering issues in parallel mode');
+  test('search returns no results for unmatched term', async ({ page }) => {
+    await page.getByTestId('search-input').fill('zzznoresults');
 
+    const productGrid = page.getByTestId('search-grid');
+    await expect(productGrid).toBeVisible();
+    await expect(productGrid.locator('.product-card')).toHaveCount(0);
+    await expect(productGrid).toContainText('No Results Found');
+  });
+
+  test('filter by category - New In', async ({ page }) => {
     await page.getByRole('link', { name: 'New In' }).click();
-    
+
     // Instead of checking the grid (container), we wait for the first PRODUCT (content)
     // This is the "industry standard" for dynamic grids
     await expect(page.locator('.product-card').first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('filter by category - Sale', async ({ page, browserName }) => {
-    test.skip(browserName === 'firefox', 'Firefox rendering issues in parallel mode');
-
+  test('filter by category - Sale', async ({ page }) => {
     await page.getByRole('link', { name: 'Sale' }).click();
-    
+
     // Same here: Wait for the content to appear inside the grid
     await expect(page.locator('.product-card').first()).toBeVisible({ timeout: 10000 });
   });

@@ -22,9 +22,9 @@ Updated progressively as each area is reviewed and gap-analyzed.
 | [Mobile — Navigation (happy)](#mobile--navigation-happy-path) | `mobile-chrome`, `mobile-safari` | `navigation.mobile.spec.ts` | 11 | ✅ |
 | [Mobile — Negative](#mobile--negative-scenarios) | `mobile-chrome`, `mobile-safari` | `negative.mobile.spec.ts` | 6 | ✅ |
 | [Mobile — E2E Checkout](#mobile--e2e-checkout-flow) | `mobile-chrome`, `mobile-safari` | `checkout.mobile.spec.ts` | 5 | ✅ |
-| [Smoke](#smoke) | `smoke-chromium`, `smoke-firefox`, `smoke-webkit` | `login.smoke.spec.ts` | 3 | 🔵 |
-| [Regression — Search](#regression--search) | `regression` | `search.spec.ts`, `parameterized-search.spec.ts` | 9 | 🔵 |
-| [Regression — Checkout](#regression--checkout) | `regression` | `checkout.spec.ts` | 4 | 🔵 |
+| [Smoke](#smoke) | `smoke-chromium`, `smoke-firefox`, `smoke-webkit` | `login.smoke.spec.ts` | 3 | ✅ |
+| [Regression — Search](#regression--search) | `regression` | `search.spec.ts`, `parameterized-search.spec.ts` | 10 | ✅ |
+| [Regression — Checkout](#regression--checkout) | `regression` | `checkout.spec.ts` | 4 | ✅ |
 | [Visual — Homepage](#visual--homepage) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `homepage.visual.spec.ts` | 3 | 🔵 |
 | [Visual — Products](#visual--products) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `products.visual.spec.ts` | 4 | 🔵 |
 | [Visual — Advanced](#visual--advanced) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `advanced.visual.spec.ts` | 5 | 🔵 |
@@ -32,8 +32,8 @@ Updated progressively as each area is reviewed and gap-analyzed.
 | [API Inventory — Errors](#api-inventory--errors) | `api-local` | `get-items-error`, `get-item-by-id-error`, `put-items-error`, `patch-items-error`, `delete-items-error` | 5 | 🔵 |
 | [API Mocking](#api-mocking) | `api-mocking` | `mocking-api-responses`, `advanced-patterns`, `monitoring-network`, `modifying-requests`, `modifying-responses` | 20 | 🔵 |
 
-**Total scenarios: ~111**
-**Reviewed: 58 (52%) ✅ &nbsp;|&nbsp; Existing, pending review: 53 (48%) 🔵**
+**Total scenarios: ~112**
+**Reviewed: 75 (67%) ✅ &nbsp;|&nbsp; Existing, pending review: 37 (33%) 🔵**
 
 ---
 
@@ -185,9 +185,9 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | Status |
 |---|---|---|
-| 1 | Login form is displayed | 🔵 |
-| 2 | Login with valid credentials succeeds | 🔵 |
-| 3 | Validation error shown for invalid username format | 🔵 |
+| 1 | Login form is displayed | ✅ |
+| 2 | Login with valid credentials succeeds | ✅ |
+| 3 | Validation error shown for invalid username format | ✅ |
 
 ---
 
@@ -198,12 +198,13 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | File | Status |
 |---|---|---|---|
-| 1 | Search for dresses returns results | `search.spec.ts` | 🔵 |
-| 2 | Search for tops returns results | `search.spec.ts` | 🔵 |
-| 3 | Search for accessories returns results | `search.spec.ts` | 🔵 |
-| 4 | Filter by category — New In | `search.spec.ts` | 🔵 |
-| 5 | Filter by category — Sale | `search.spec.ts` | 🔵 |
-| 6–9 | Apply promo code per customer user (data-driven: ladies, autumn, spring, winter) | `parameterized-search.spec.ts` | 🔵 |
+| 1 | Search for dresses returns results | `search.spec.ts` | ✅ |
+| 2 | Search for tops returns results | `search.spec.ts` | ✅ |
+| 3 | Search for accessories returns results | `search.spec.ts` | ✅ |
+| 4 | Filter by category — New In | `search.spec.ts` | ✅ |
+| 5 | Filter by category — Sale | `search.spec.ts` | ✅ |
+| 6 | Search with unmatched term shows "No Results Found" and zero product cards | `search.spec.ts` | ✅ |
+| 7–10 | Apply promo code per customer user (data-driven: ladies, autumn, spring, winter) | `parameterized-search.spec.ts` | ✅ |
 
 ---
 
@@ -214,10 +215,10 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | Status |
 |---|---|---|
-| 1 | Step 1 — Login and search for product | 🔵 |
-| 2 | Step 2 — Add product to cart | 🔵 |
-| 3 | Step 3 — Proceed to checkout | 🔵 |
-| 4 | Step 4 — Complete checkout form with promo code | 🔵 |
+| 1 | Step 1 — Login and search for product | ✅ |
+| 2 | Step 2 — Add product to cart | ✅ |
+| 3 | Step 3 — Proceed to checkout | ✅ |
+| 4 | Step 4 — Fill checkout form with promo code (stops at form; order placement covered in functional suite) | ✅ |
 
 ---
 
