@@ -8,6 +8,8 @@ Updated progressively as each area is reviewed and gap-analyzed.
 - 🔵 Exists — tests written and passing, not yet gap-analyzed
 - ⬜ Not started
 
+> All scenarios are currently ✅. Use 🔵 for new tests added but not yet gap-analyzed, ⬜ for planned but not written.
+
 ---
 
 ## Coverage Summary
