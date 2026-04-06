@@ -207,7 +207,9 @@ export default defineConfig({
     },
 
     // 2. New API Project (Localhost)
-    {
+    // Requires Docker running locally (localhost:8080) — skipped in CI.
+    // To run: npx playwright test --project=api-local
+    ...(!process.env.CI ? [{
       name: 'api-local',
       testDir: './tests/api-inventory/',
       use: {
@@ -221,7 +223,7 @@ export default defineConfig({
       },
       fullyParallel: false,
       workers: 1,
-    },
+    }] : []),
 
     // 3. New Mocking Project (Network Mocking)
     {
