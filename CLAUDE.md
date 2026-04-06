@@ -58,7 +58,7 @@ There are 16 test projects, split by purpose:
 | `smoke-*` | `smoke/**` | Fast critical-path checks |
 | `regression` | `regression/**` | Single E2E happy-path flow (Chromium only) |
 | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `visual/**` | Screenshot comparison |
-| `api-local` | `api-inventory/**` | Hits `localhost:8080`, runs **serially** (1 worker) |
+| `api-local` | `api-inventory/**` | Hits `localhost:8080`, runs **serially** (1 worker) — **skipped in CI** (no Docker) |
 | `api-mocking` | `api-mocking/**` | Network interception tests |
 
 ### Global Setup / Auth
@@ -115,6 +115,7 @@ These are non-obvious issues already fixed — keep them in mind when editing th
 - **`search-grid` stays visible even when a search returns no results** — the element renders a "No Results Found" message but remains in the DOM. Asserting `expect(page.getByTestId('search-grid')).toBeVisible()` alone is insufficient to confirm results were found; scope assertions to `.product-card` elements inside the grid (`search-grid.locator('.product-card')`) or check for `No Results Found` text.
 - **Firefox filter-category tests no longer skipped** — the `test.skip(browserName === 'firefox', ...)` guard on the "New In" and "Sale" category filter tests in `tests/functional/search.spec.ts` was removed after confirming the tests pass on Firefox. Do not re-add a Firefox skip for these without reproducing the failure first.
 - **Cart slide-in animation must settle before portrait screenshots** — even after cart content is visible, the panel may still be mid-animation. Add `await page.waitForTimeout(400)` after hiding the toast and before `page.screenshot()` to let the animation complete.
+- **`api-local` is skipped in CI — requires Docker** — the project is wrapped in a `process.env.CI` guard in `playwright.config.ts`. Run it locally with the `taqelah/playpi` Docker container active and the RESTful Inventory Manager started on port 8080. The `api-inventory` specs use the `request` fixture and hit real endpoints — do not revert them to `page.route()` mocks.
 
 ## Key Config Values
 
