@@ -129,7 +129,7 @@ export default defineConfig({
     // Desktop browsers with specific base URLs for staging and production environments
     {
       name: 'staging',
-      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
+      testIgnore: ['**/*.visual.spec.ts', '**/api-inventory/**'], // Exclude visual and api-local tests
       use: {
       ...devices['Desktop Chrome'],
       baseURL: 'https://taqelah.sg',
@@ -137,7 +137,7 @@ export default defineConfig({
     },
     {
       name: 'production',
-      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
+      testIgnore: ['**/*.visual.spec.ts', '**/api-inventory/**'], // Exclude visual and api-local tests
       use: {
       ...devices['Desktop Chrome'],
       baseURL: 'https://taqelah.sg',
