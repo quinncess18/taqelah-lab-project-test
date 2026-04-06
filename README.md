@@ -249,12 +249,6 @@ This is a portfolio project showcasing test automation best practices. For feedb
 
 ---
 
-## 📝 License
-
-This project is provided as-is for portfolio and educational purposes.
-
----
-
 ## 🎓 What I Learned
 
 Building this comprehensive test suite reinforced key skills in:
@@ -264,6 +258,22 @@ Building this comprehensive test suite reinforced key skills in:
 - **CI/CD Integration** — GitHub Actions parallelization and artifact management
 - **Test Isolation** — data cleanup, fixture management, environment separation
 - **Problem Solving** — debugging flaky tests, handling async operations, managing test state
+
+---
+
+## 🙏 Acknowledgments
+
+**Built on foundations from:** Playwright Agentic AI workshop module
+
+This framework originated from Playwright baseline workshop code and has been significantly expanded, refactored, and enhanced into a production-ready testing framework using Playwright and enterprise-grade best practices.
+
+**Special thanks to:** Syam Sasi for creating the foundational workshop content and for championing this project with the testing community.
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ---
 
