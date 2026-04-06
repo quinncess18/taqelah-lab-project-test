@@ -1,53 +1,26 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('POST /items - Mocked for CI', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('http://mock.local/', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'text/html',
-        body: '<!doctype html><html><body>Mock App</body></html>',
-      });
-    });
+test.describe('POST /items', () => {
+  let createdId: number;
 
-    await page.route('**/api/items*', async (route) => {
-      const method = route.request().method();
-
-      if (method === 'POST') {
-        const newItem = { id: 3, name: 'New Item Created', quantity: 50 };
-        await route.fulfill({ status: 201, json: newItem });
-        return;
-      }
-
-      await route.continue();
-    });
-
-    await page.goto('http://mock.local/');
+  test.afterEach(async ({ request }) => {
+    if (createdId) await request.delete(`/items/${createdId}`);
   });
 
-  test('should create a new item with mocked response', async ({ page }) => {
-    const responsePayload = await page.evaluate(async () => {
-      const response = await fetch('/api/items', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: 'Laptop', quantity: 10 }),
-      });
+  test('should create a new item and return 201', async ({ request }) => {
+    const payload = { name: 'Mechanical Keyboard', description: 'Tactile switches', price: 120, quantity: 8 };
 
-      return {
-        status: response.status,
-        contentType: response.headers.get('content-type') || '',
-        body: await response.json(),
-      };
-    });
+    const response = await request.post('/items', { data: payload });
+    const body = await response.json();
+    createdId = body.id;
 
-    expect(responsePayload.status).toBe(201);
-    expect(responsePayload.contentType).toContain('application/json');
-    expect(responsePayload.body).toEqual({
-      id: 3,
-      name: 'New Item Created',
-      quantity: 50,
-    });
+    expect(response.status()).toBe(201);
+    expect(response.headers()['content-type']).toContain('application/json');
+    expect(body.id).toBeDefined();
+    expect(body.name).toBe(payload.name);
+    expect(body.description).toBe(payload.description);
+    expect(body.price).toBe(payload.price);
+    expect(body.quantity).toBe(payload.quantity);
   });
+
 });

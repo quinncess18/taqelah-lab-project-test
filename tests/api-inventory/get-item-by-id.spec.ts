@@ -1,50 +1,34 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('GET /items/{id} - Mocked for CI', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('http://mock.local/', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'text/html',
-        body: '<!doctype html><html><body>Mock App</body></html>',
-      });
+// GET /items/{id} is not a supported endpoint — returns 404 for all IDs.
+// This test verifies a created item is retrievable by finding it in GET /items.
+
+test.describe('GET /items — find by id', () => {
+  let createdId: number;
+
+  test.beforeEach(async ({ request }) => {
+    const response = await request.post('/items', {
+      data: { name: 'Find Me', description: 'retrieval test', price: 10, quantity: 3 },
     });
-
-    await page.route('**/api/items/**', async (route) => {
-      if (route.request().method() === 'GET') {
-        const mockItem = { id: 1, name: 'Item Detail', quantity: 10 };
-        await route.fulfill({ status: 200, json: mockItem });
-        return;
-      }
-
-      await route.continue();
-    });
-
-    await page.route('**/api/items', async (route) => {
-      if (route.request().method() === 'GET') {
-        const mockItem = { id: 1, name: 'Item Detail', quantity: 10 };
-        await route.fulfill({ status: 200, json: mockItem });
-        return;
-      }
-
-      await route.continue();
-    });
-
-    await page.goto('http://mock.local/');
+    const body = await response.json();
+    createdId = body.id;
   });
 
-  test('should retrieve item by id', async ({ page }) => {
-    const result = await page.evaluate(async () => {
-      const response = await fetch('/api/items/1');
-      return {
-        status: response.status,
-        body: await response.json(),
-      };
-    });
-
-    expect(result.status).toBe(200);
-    expect(result.body).toHaveProperty('id');
-    expect(result.body).toHaveProperty('name');
-    expect(result.body).toHaveProperty('quantity');
+  test.afterEach(async ({ request }) => {
+    await request.delete(`/items/${createdId}`);
   });
+
+  test('should find a created item by id in the items list', async ({ request }) => {
+    const response = await request.get('/items');
+    const items = await response.json();
+
+    const found = items.find((i: { id: number }) => i.id === createdId);
+
+    expect(found).toBeDefined();
+    expect(found.name).toBe('Find Me');
+    expect(found.description).toBe('retrieval test');
+    expect(found.price).toBe(10);
+    expect(found.quantity).toBe(3);
+  });
+
 });

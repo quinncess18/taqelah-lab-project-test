@@ -1,53 +1,28 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('DELETE /items/{id} - Mocked for CI', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('http://mock.local/', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'text/html',
-        body: '<!doctype html><html><body>Mock App</body></html>',
-      });
+test.describe('DELETE /items/{id}', () => {
+  let createdId: number;
+
+  test.beforeEach(async ({ request }) => {
+    const response = await request.post('/items', {
+      data: { name: 'Delete Target', description: 'to be deleted', price: 25, quantity: 1 },
     });
-
-    await page.route('**/api/items/**', async (route) => {
-      const method = route.request().method();
-
-      if (method === 'DELETE') {
-        await route.fulfill({ status: 204 });
-        return;
-      }
-
-      await route.continue();
-    });
-
-    await page.route('**/api/items', async (route) => {
-      const method = route.request().method();
-
-      if (method === 'DELETE') {
-        await route.fulfill({ status: 204 });
-        return;
-      }
-
-      await route.continue();
-    });
-
-    await page.goto('http://mock.local/');
+    const body = await response.json();
+    createdId = body.id;
   });
 
-  test('should delete an item and return no content', async ({ page }) => {
-    const result = await page.evaluate(async () => {
-      const response = await fetch('/api/items/1', {
-        method: 'DELETE',
-      });
+  test('should delete an existing item and return confirmation', async ({ request }) => {
+    const response = await request.delete(`/items/${createdId}`);
+    const body = await response.json();
 
-      return {
-        status: response.status,
-        bodyLength: (await response.text()).length,
-      };
-    });
+    expect(response.status()).toBe(200);
+    expect(body.message).toBe('item deleted');
 
-    expect(result.status).toBe(204);
-    expect(result.bodyLength).toBe(0);
+    // Verify item no longer appears in the list
+    const listResponse = await request.get('/items');
+    const items = await listResponse.json();
+    const found = items.find((i: { id: number }) => i.id === createdId);
+    expect(found).toBeUndefined();
   });
+
 });

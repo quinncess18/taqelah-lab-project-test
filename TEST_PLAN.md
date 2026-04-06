@@ -26,15 +26,15 @@ Updated progressively as each area is reviewed and gap-analyzed.
 | [Mobile — E2E Checkout](#mobile--e2e-checkout-flow) | `mobile-chrome`, `mobile-safari` | `checkout.mobile.spec.ts` | 5 | ✅ |
 | [Smoke](#smoke) | `smoke-chromium`, `smoke-firefox`, `smoke-webkit` | `login.smoke.spec.ts` | 3 | ✅ |
 | [Regression — E2E Happy Path](#regression--e2e-happy-path) | `regression` | `e2e-happy-path.spec.ts` | 8 | ✅ |
-| [Visual — Homepage](#visual--homepage) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `homepage.visual.spec.ts` | 3 | 🔵 |
-| [Visual — Products](#visual--products) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `products.visual.spec.ts` | 4 | 🔵 |
-| [Visual — Advanced](#visual--advanced) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `advanced.visual.spec.ts` | 5 | 🔵 |
-| [API Inventory — CRUD](#api-inventory--crud) | `api-local` | `get-items`, `post-items`, `put-items`, `patch-items`, `delete-items` | 5 | 🔵 |
-| [API Inventory — Errors](#api-inventory--errors) | `api-local` | `get-items-error`, `get-item-by-id-error`, `put-items-error`, `patch-items-error`, `delete-items-error` | 5 | 🔵 |
-| [API Mocking](#api-mocking) | `api-mocking` | `mocking-api-responses`, `advanced-patterns`, `monitoring-network`, `modifying-requests`, `modifying-responses` | 20 | 🔵 |
+| [Visual — Homepage](#visual--homepage) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `homepage.visual.spec.ts` | 3 | ✅ |
+| [Visual — Products](#visual--products) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `products.visual.spec.ts` | 4 | ✅ |
+| [Visual — Advanced](#visual--advanced) | `visual-tests`, `visual-mobile`, `visual-tablet`, `visual-widescreen` | `advanced.visual.spec.ts` | 5 | ✅ |
+| [API Inventory — CRUD](#api-inventory--crud) | `api-local` | `get-items`, `get-item-by-id`, `post-items`, `put-items`, `patch-items`, `delete-items` | 7 | ✅ |
+| [API Inventory — Errors](#api-inventory--errors) | `api-local` | `get-items-error`, `get-item-by-id-unsupported`, `put-items-error`, `patch-items-error`, `delete-items-error` | 5 | ✅ |
+| [API Mocking](#api-mocking) | `api-mocking` | `mocking-api-responses`, `advanced-patterns`, `monitoring-network`, `modifying-requests`, `modifying-responses` | 26 | ✅ |
 
-**Total scenarios: ~112**
-**Reviewed: 75 (67%) ✅ &nbsp;|&nbsp; Existing, pending review: 37 (33%) 🔵**
+**Total scenarios: ~125**
+**Reviewed: 125 (100%) ✅**
 
 ---
 
@@ -249,9 +249,9 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | Status |
 |---|---|---|
-| 1 | Login page full-page screenshot | 🔵 |
-| 2 | Login form element screenshot | 🔵 |
-| 3 | Login button default and hover states | 🔵 |
+| 1 | Login page full-page screenshot | ✅ |
+| 2 | Login form element screenshot | ✅ |
+| 3 | Login button default and hover states | ✅ |
 
 ---
 
@@ -262,10 +262,10 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | Status |
 |---|---|---|
-| 1 | Search page layout | 🔵 |
-| 2 | Product grid appearance | 🔵 |
-| 3 | Product details modal | 🔵 |
-| 4 | Shopping cart appearance | 🔵 |
+| 1 | Search page layout | ✅ |
+| 2 | Product grid appearance | ✅ |
+| 3 | Product details modal | ✅ |
+| 4 | Shopping cart appearance | ✅ |
 
 ---
 
@@ -276,42 +276,44 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | Status |
 |---|---|---|
-| 1 | Full page with custom threshold | 🔵 |
-| 2 | Screenshot with masked dynamic regions | 🔵 |
-| 3 | Screenshot after hover interaction | 🔵 |
-| 4 | Screenshot with style masking | 🔵 |
-| 5 | Search input in empty, focused, and filled states | 🔵 |
+| 1 | Full page with custom threshold | ✅ |
+| 2 | Screenshot with masked dynamic regions | ✅ |
+| 3 | Screenshot after hover interaction | ✅ |
+| 4 | Screenshot with style masking | ✅ |
+| 5 | Search input in empty, focused, and filled states | ✅ |
 
 ---
 
 ## API Inventory — CRUD
 
-**Files:** `tests/api-inventory/get-items.spec.ts`, `post-items.spec.ts`, `put-items.spec.ts`, `patch-items.spec.ts`, `delete-items.spec.ts`
+**Files:** `tests/api-inventory/get-items.spec.ts`, `get-item-by-id.spec.ts`, `post-items.spec.ts`, `put-items.spec.ts`, `patch-items.spec.ts`, `delete-items.spec.ts`
 **Project:** `api-local` (hits `localhost:8080`, serial, 1 worker)
+**Note:** `GET /items/{id}` is not a supported endpoint — `get-item-by-id.spec.ts` verifies a created item is findable by ID in `GET /items`.
 
 | # | Scenario | Method | Status |
 |---|---|---|---|
-| 1 | Returns 200 and JSON array of items | GET /items | 🔵 |
-| 2 | Returns valid item schema | GET /items | 🔵 |
-| 3 | Creates a new item with 201 response | POST /items | 🔵 |
-| 4 | Fully updates an existing item | PUT /items/{id} | 🔵 |
-| 5 | Partially updates an existing item | PATCH /items/{id} | 🔵 |
-| 6 | Deletes an existing item | DELETE /items/{id} | 🔵 |
+| 1 | Returns 200 and JSON array of items | GET /items | ✅ |
+| 2 | Returns valid item schema | GET /items | ✅ |
+| 3 | Created item is findable by ID in the list | GET /items (find by id) | ✅ |
+| 4 | Creates a new item with 201 response | POST /items | ✅ |
+| 5 | Fully updates an existing item | PUT /items/{id} | ✅ |
+| 6 | Partially updates an existing item | PATCH /items/{id} | ✅ |
+| 7 | Deletes an existing item and confirms removal | DELETE /items/{id} | ✅ |
 
 ---
 
 ## API Inventory — Errors
 
-**Files:** `tests/api-inventory/get-items-error.spec.ts`, `get-item-by-id-error.spec.ts`, `put-items-error.spec.ts`, `patch-items-error.spec.ts`, `delete-items-error.spec.ts`
+**Files:** `tests/api-inventory/get-items-error.spec.ts`, `get-item-by-id-unsupported.spec.ts`, `put-items-error.spec.ts`, `patch-items-error.spec.ts`, `delete-items-error.spec.ts`
 **Project:** `api-local`
 
 | # | Scenario | Method | Status |
 |---|---|---|---|
-| 1 | Returns 404 for non-existent item collection path | GET /items | 🔵 |
-| 2 | Returns 404 for non-existent item ID | GET /items/{id} | 🔵 |
-| 3 | Returns error for invalid PUT request | PUT /items/{id} | 🔵 |
-| 4 | Returns error for invalid PATCH request | PATCH /items/{id} | 🔵 |
-| 5 | Returns error for invalid DELETE request | DELETE /items/{id} | 🔵 |
+| 1 | Returns 404 for a non-existent path | GET /nonexistent | ✅ |
+| 2 | Returns 404 for GET /items/{id} (endpoint not supported) | GET /items/{id} | ✅ |
+| 3 | Returns 400 for PUT on non-existent item ID | PUT /items/{id} | ✅ |
+| 4 | Returns 400 for PATCH on non-existent item ID | PATCH /items/{id} | ✅ |
+| 5 | Returns 404 for DELETE on non-existent item ID | DELETE /items/{id} | ✅ |
 
 ---
 
@@ -322,24 +324,32 @@ Updated progressively as each area is reviewed and gap-analyzed.
 
 | # | Scenario | File | Status |
 |---|---|---|---|
-| 1 | Mock GET /api/items with custom data | `mocking-api-responses` | 🔵 |
-| 2 | Mock GET /api/items with empty array | `mocking-api-responses` | 🔵 |
-| 3 | Mock GET /api/items/{id} — item found | `mocking-api-responses` | 🔵 |
-| 4 | Mock GET /api/items/{id} — 404 not found | `mocking-api-responses` | 🔵 |
-| 5 | Mock POST /api/items — create item | `mocking-api-responses` | 🔵 |
-| 6 | Mock 500 Internal Server Error | `mocking-api-responses` | 🔵 |
-| 7 | Stateful mock — simulate full CRUD lifecycle | `advanced-patterns` | 🔵 |
-| 8 | Mock with request counter | `advanced-patterns` | 🔵 |
-| 9 | Conditional mock based on request content (validation) | `advanced-patterns` | 🔵 |
-| 10 | Mock with fallback to real API for specific IDs | `advanced-patterns` | 🔵 |
-| 11 | Simulate network failure (abort) | `advanced-patterns` | 🔵 |
-| 12 | Track all API requests by method and URL | `monitoring-network` | 🔵 |
-| 13 | Track API response status codes | `monitoring-network` | 🔵 |
-| 14 | Wait for specific API response before asserting | `monitoring-network` | 🔵 |
-| 15 | Count requests grouped by HTTP method | `monitoring-network` | 🔵 |
-| 16 | Track request timing (duration) | `monitoring-network` | 🔵 |
-| 17 | Verify captured POST request body content | `monitoring-network` | 🔵 |
-| 18–20 | Modifying requests / responses (pending detail) | `modifying-requests`, `modifying-responses` | 🔵 |
+| 1 | Mock GET /api/items with custom data | `mocking-api-responses` | ✅ |
+| 2 | Mock GET /api/items with empty array | `mocking-api-responses` | ✅ |
+| 3 | Mock GET /api/items/{id} — item found | `mocking-api-responses` | ✅ |
+| 4 | Mock GET /api/items/{id} — 404 not found | `mocking-api-responses` | ✅ |
+| 5 | Mock POST /api/items — create item | `mocking-api-responses` | ✅ |
+| 6 | Mock 500 Internal Server Error | `mocking-api-responses` | ✅ |
+| 7 | Stateful mock — simulate full CRUD lifecycle | `advanced-patterns` | ✅ |
+| 8 | Mock with request counter | `advanced-patterns` | ✅ |
+| 9 | Conditional mock based on request content (validation) | `advanced-patterns` | ✅ |
+| 10 | Mock with fallback to real API for specific IDs | `advanced-patterns` | ✅ |
+| 11 | Simulate network failure (abort) | `advanced-patterns` | ✅ |
+| 12 | Track all API requests by method and URL | `monitoring-network` | ✅ |
+| 13 | Track API response status codes | `monitoring-network` | ✅ |
+| 14 | Wait for specific API response before asserting | `monitoring-network` | ✅ |
+| 15 | Count requests grouped by HTTP method | `monitoring-network` | ✅ |
+| 16 | Track request timing (duration) | `monitoring-network` | ✅ |
+| 17 | Verify captured POST request body content | `monitoring-network` | ✅ |
+| 18 | Add custom headers to outgoing requests | `modifying-requests` | ✅ |
+| 19 | Add authorization header to requests | `modifying-requests` | ✅ |
+| 20 | Modify POST request body before sending | `modifying-requests` | ✅ |
+| 21 | Add query parameters to requests | `modifying-requests` | ✅ |
+| 22 | Fetch response and add metadata fields | `modifying-responses` | ✅ |
+| 23 | Filter response data by field value | `modifying-responses` | ✅ |
+| 24 | Transform response structure (array → paginated) | `modifying-responses` | ✅ |
+| 25 | Add custom response headers | `modifying-responses` | ✅ |
+| 26 | Simulate slow response with artificial delay | `modifying-responses` | ✅ |
 
 ---
 
