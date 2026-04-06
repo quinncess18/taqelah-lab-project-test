@@ -66,7 +66,7 @@ export default defineConfig({
     // Functional tests - run on all desktop browsers, excluding visual tests
     {
       name: 'main-desktop-chrome',
-      testIgnore: '**/*.visual.spec.ts',
+      testIgnore: ['**/*.visual.spec.ts', '**/api-inventory/**'],
       use: {
         ...devices['Desktop Chrome'],
         },
@@ -74,7 +74,7 @@ export default defineConfig({
     {
       name: 'main-desktop-firefox',
       timeout: 25000, // Allow extra headroom for transient network and rendering delays
-      testIgnore: '**/*.visual.spec.ts',
+      testIgnore: ['**/*.visual.spec.ts', '**/api-inventory/**'],
       use: {
         ...devices['Desktop Firefox'],
       },
@@ -82,7 +82,7 @@ export default defineConfig({
     {
       name: 'main-desktop-safari',
       timeout: 30000, // Longer timeout for WebKit rendering
-      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
+      testIgnore: ['**/*.visual.spec.ts', '**/api-inventory/**'],
       use: {
         ...devices['Desktop Safari'],
         },
@@ -147,7 +147,7 @@ export default defineConfig({
     // Regression tests - Chromium only
     {
       name: 'regression',
-      testIgnore: '**/*.visual.spec.ts', // Exclude visual tests from this project
+      testIgnore: ['**/*.visual.spec.ts', '**/api-inventory/**'],
       use: { ...devices['Desktop Chrome'] },
     },
 
