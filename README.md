@@ -11,7 +11,7 @@
 
 ## 🎯 Project Highlights
 
-✅ **50+ automated tests** across 8 focused test categories  
+✅ **643+ automated tests** across 8 focused test categories  
 ✅ **Multi-browser coverage** — Chromium, Firefox, WebKit  
 ✅ **Mobile-first testing** — iPhone 13, Pixel 5, tablet, widescreen viewports  
 ✅ **Visual regression testing** — Screenshot-based validation across devices  
